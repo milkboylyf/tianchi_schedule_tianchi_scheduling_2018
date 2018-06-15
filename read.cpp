@@ -54,12 +54,14 @@ void read_data(
         global:: app_m.push_back(int_buffers[5]);
         global:: app_pm.push_back(int_buffers[6]);
     }
-    //cerr << global:: app_ids[3] << " " << global:: app_cpu_line[3][3] << " " \
-         << global:: app_mem_line[3][3] << " " \
-         << global:: app_apply[0] << " " \
-         << global:: app_p[3] << " " \
-         << global:: app_m[3] << " " \
+    /*
+    cerr << global:: app_ids[3] << " " << global:: app_cpu_line[3][3] << " " 
+         << global:: app_mem_line[3][3] << " " 
+         << global:: app_apply[0] << " " 
+         << global:: app_p[3] << " " 
+         << global:: app_m[3] << " " 
          << global:: app_pm[3] << endl;
+    */
     cerr << "input app_resource_num = " << (global:: app_resources_num = global:: app_ids.size()) << endl;
 
     io::CSVReader<7> in2(machine_resources_file);
@@ -74,13 +76,15 @@ void read_data(
         global:: m_lim.push_back(int_buffers[5]);
         global:: pm_lim.push_back(int_buffers[6]);
     }
-    //cerr << global:: machine_ids[3] << " " \
-         << global:: cpu_spec[3] << " " \
-         << global:: mem_spec[3] << " " \
-         << global:: disk_spec[3] << " " \
-         << global:: p_lim[3] << " " \
-         << global:: m_lim[3] << " " \
+    /*
+    cerr << global:: machine_ids[3] << " " 
+         << global:: cpu_spec[3] << " " 
+         << global:: mem_spec[3] << " " 
+         << global:: disk_spec[3] << " " 
+         << global:: p_lim[3] << " " 
+         << global:: m_lim[3] << " " 
          << global:: pm_lim[3] << endl;
+    */
     cerr << "input machine_resources_num = " << (global:: machine_resources_num = global:: machine_ids.size()) << endl;
 
     vector<int> app_inter1, app_inter2, app_inter_max;
@@ -90,8 +94,9 @@ void read_data(
         global:: app_inter2.push_back(stoi(string_buffers[1].substr(4)));
         global:: app_inter_max.push_back(int_buffers[2]);
     }
-    //cerr << global:: app_inter1[3] << " " \
-         << global:: app_inter2[3] << " " \
+    /*cerr << global:: app_inter1[3] << " " 
+         << global:: app_inter2[3] << " " 
          << global:: app_inter_max[3] << endl;
+    */
     cerr << "input app_interference_num = " << (global:: app_interference_num = global:: app_inter_max.size()) << endl;
 }
