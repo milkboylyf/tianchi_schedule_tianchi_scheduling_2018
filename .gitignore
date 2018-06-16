@@ -3,3 +3,4 @@ build/
 *.dev
 *.layout
 *.exe
+*.o
