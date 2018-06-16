@@ -1,3 +1,7 @@
+#ifndef _CODE
+#define _CODE
+
+
 #include "global.h"
 #include <map>
 #include <vector>
@@ -35,6 +39,8 @@ struct Machine {
     bool add_instance(int ins);
     
     bool del_instance( int ins );
+    
+    void print() ;
 };
 
 struct Code {
@@ -58,4 +64,8 @@ struct Code {
     int moving_ins_id, moving_machine_id;
     
     void show_status();
+    
+    double ave_score() ;
 };
+
+#endif

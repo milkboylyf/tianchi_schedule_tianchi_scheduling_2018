@@ -27,7 +27,8 @@ int time_len = 98 ;
 
 vector<vector<int> > app_cpus= {{}};
 vector<vector<int> > app_mems= {{}};
-map<int,set<pair<int,int> > > app_inter_set; 
+map<int,set<pair<int,int> > > app_inter_set;
+map<int,set<pair<int,int> > > app_rvs_inter_set; 
 
 };
 

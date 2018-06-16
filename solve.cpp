@@ -1,6 +1,7 @@
 #include "global.h"
 #include "read.h"
 #include "code.h"
+#include "simulated_annealing.h"
 #include <iostream>
 
 int main() {
@@ -10,17 +11,6 @@ int main() {
             "../data_preliminary/scheduling_preliminary_machine_resources_20180606.csv",
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv");
     process_data();
-    Code a(machine_resources_num);
-    a.init();
-    a.show_status();
-    while ( true ) {
-        int tmp_i = rand()%instance_deploy_num+1;
-        if (a.move(tmp_i)) {
-            a.show_status();
-            a.recover();
-            a.show_status();
-        }
-        else cout << "fail to move:" << tmp_i <<endl;
-    }
+    simulated_annealing (20000);
     return 0;
 }

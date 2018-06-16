@@ -122,6 +122,8 @@ void process_data() {
     }
     for (auto &t : global:: cpu_spec ) t*= 1000;
     for (auto &t : global:: mem_spec ) t*= 1000;
-    for (int i =0; i< global:: app_interference_num ;i ++ ) 
-        global:: app_inter_set[global:: app_inter2[i]-1].insert(make_pair(global:: app_inter1[i]-1,global:: app_inter_max[i])) ;
+    for (int i =0; i< global:: app_interference_num ;i ++ ) {
+        global:: app_inter_set[global:: app_inter2[i]].insert(make_pair(global:: app_inter1[i],global:: app_inter_max[i])) ;
+        global:: app_rvs_inter_set[global:: app_inter1[i]].insert(make_pair(global:: app_inter2[i],global:: app_inter_max[i])) ;
+    }
 }
