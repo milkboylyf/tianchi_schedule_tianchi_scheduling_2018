@@ -3,8 +3,7 @@
 
 
 #include "global.h"
-#include <map>
-#include <vector>
+#include <stack>
 #include <cmath>
 #include <iostream>
 #include <assert.h>
@@ -55,9 +54,15 @@ struct Code {
     
     Code(int _len);
     
+    stack<pair<int,int> > move_log;
+    
     void init();
     
-    bool move(int ins);
+    int move(int ins);
+    
+    bool add_machine();
+    
+    bool del_machine();
     
     void recover() ;
     
@@ -66,6 +71,8 @@ struct Code {
     void show_status();
     
     double ave_score() ;
+    
+    void accept();
 };
 
 #endif

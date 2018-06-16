@@ -14,6 +14,4 @@ void simulated_annealing (double end_time);
 
 
 
-
-
 #endif
