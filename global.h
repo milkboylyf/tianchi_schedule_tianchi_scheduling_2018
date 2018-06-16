@@ -7,6 +7,8 @@
 
 #include <vector>
 #include <string>
+#include <map>
+#include <set>
 
 using namespace std;
 
@@ -29,4 +31,15 @@ extern vector<int> cpu_spec, mem_spec, disk_spec, p_lim, m_lim, pm_lim;
 
 extern int app_interference_num;
 extern vector<int> app_inter1, app_inter2, app_inter_max;
+extern int time_len;
+
+
+extern vector<vector<int> > app_cpus;
+extern vector<vector<int> > app_mems;
+extern map<int,set<pair<int,int> > > app_inter_set; 
+};
+
+namespace cst {
+extern const double a ;
+extern const double b ;
 };

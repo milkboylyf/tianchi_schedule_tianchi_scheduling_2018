@@ -100,3 +100,24 @@ void read_data(
     */
     cerr << "input app_interference_num = " << (global:: app_interference_num = global:: app_inter_max.size()) << endl;
 }
+
+void process_data() {
+    for (auto lines : global:: app_cpu_line ) {
+        vector<int> tmp ;
+        //cout<< lines.size() << endl;
+        assert( lines.size()== global:: time_len ) ;
+        for (auto t: lines) tmp.push_back(t*1000);
+        global:: app_cpus.push_back(tmp);
+    }
+    for (auto lines : global:: app_mem_line ) {
+        vector<int> tmp ;
+        //cout<< lines.size() << endl;
+        assert( lines.size()== global:: time_len ) ;
+        for (auto t: lines) tmp.push_back(t*1000);
+        global:: app_mems.push_back(tmp);
+    }
+    for (auto &t : global:: cpu_spec ) t*= 1000;
+    for (auto &t : global:: mem_spec ) t*= 1000;
+    for (int i =0; i< global:: app_interference_num ;i ++ ) 
+        global:: app_inter_set[global:: app_inter2[i]-1].insert(make_pair(global:: app_inter1[i]-1,global:: app_inter_max[i])) ;
+}

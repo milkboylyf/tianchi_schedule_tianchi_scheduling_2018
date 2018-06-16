@@ -5,3 +5,6 @@ void read_data(
         string app_resources_file,
         string machine_resources_file,
         string app_interference_file);
+        
+        
+void process_data();

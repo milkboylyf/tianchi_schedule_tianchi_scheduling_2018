@@ -1,5 +1,3 @@
-#include <vector>
-#include <string>
 #include "global.h"
 
 using namespace std;
@@ -24,4 +22,16 @@ vector<int> cpu_spec, mem_spec, disk_spec, p_lim, m_lim, pm_lim;
 int app_interference_num;
 vector<int> app_inter1, app_inter2, app_inter_max;
 
+int time_len = 98 ;
+
+
+vector<vector<int> > app_cpus;
+vector<vector<int> > app_mems;
+map<int,set<pair<int,int> > > app_inter_set; 
+
+};
+
+namespace cst {
+    const double a = 10;
+    const double b = 0.5;
 };

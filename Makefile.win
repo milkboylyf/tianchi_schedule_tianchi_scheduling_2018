@@ -1,0 +1,37 @@
+# Project: scheduling
+# Makefile created by Dev-C++ 5.11
+
+CPP      = g++.exe -D__DEBUG__
+CC       = gcc.exe -D__DEBUG__
+WINDRES  = windres.exe
+OBJ      = build/global.o build/read.o build/solve.o build/code.o
+LINKOBJ  = build/global.o build/read.o build/solve.o build/code.o
+LIBS     = -L"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/lib" -L"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0" -O0 -ggdb3 --std=c++11 -g3
+INCS     = -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include"
+CXXINCS  = -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include/c++"
+BIN      = bin/scheduling.exe
+CXXFLAGS = $(CXXINCS) -g3 -O0 -ggdb3 --std=c++11
+CFLAGS   = $(INCS) -g3 -O0 -ggdb3 --std=c++11
+RM       = rm.exe -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+
+build/global.o: global.cpp
+	$(CPP) -c global.cpp -o build/global.o $(CXXFLAGS)
+
+build/read.o: read.cpp
+	$(CPP) -c read.cpp -o build/read.o $(CXXFLAGS)
+
+build/solve.o: solve.cpp
+	$(CPP) -c solve.cpp -o build/solve.o $(CXXFLAGS)
+
+build/code.o: code.cpp
+	$(CPP) -c code.cpp -o build/code.o $(CXXFLAGS)
