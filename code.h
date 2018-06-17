@@ -1,6 +1,9 @@
+#ifndef _CODE
+#define _CODE
+
+
 #include "global.h"
-#include <map>
-#include <vector>
+#include <stack>
 #include <cmath>
 #include <iostream>
 #include <assert.h>
@@ -35,6 +38,8 @@ struct Machine {
     bool add_instance(int ins);
     
     bool del_instance( int ins );
+    
+    void print() ;
 };
 
 struct Code {
@@ -49,13 +54,25 @@ struct Code {
     
     Code(int _len);
     
+    stack<pair<int,int> > move_log;
+    
     void init();
     
-    bool move(int ins);
+    int move(int ins);
+    
+    bool add_machine();
+    
+    bool del_machine();
     
     void recover() ;
     
     int moving_ins_id, moving_machine_id;
     
     void show_status();
+    
+    double ave_score() ;
+    
+    void accept();
 };
+
+#endif

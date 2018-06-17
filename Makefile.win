@@ -1,17 +1,17 @@
 # Project: scheduling
 # Makefile created by Dev-C++ 5.11
 
-CPP      = g++.exe -D__DEBUG__
-CC       = gcc.exe -D__DEBUG__
+CPP      = g++.exe
+CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = build/global.o build/read.o build/solve.o build/code.o
-LINKOBJ  = build/global.o build/read.o build/solve.o build/code.o
-LIBS     = -L"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/lib" -L"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0" -O0 -ggdb3 --std=c++11 -g3
-INCS     = -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include"
-CXXINCS  = -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include/c++"
+OBJ      = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o
+LINKOBJ  = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o
+LIBS     = -L"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0" -L"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/lib" -O3 --std=c++11
+INCS     = -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include"
+CXXINCS  = -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include/c++" -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include"
 BIN      = bin/scheduling.exe
-CXXFLAGS = $(CXXINCS) -g3 -O0 -ggdb3 --std=c++11
-CFLAGS   = $(INCS) -g3 -O0 -ggdb3 --std=c++11
+CXXFLAGS = $(CXXINCS) -O3 --std=c++11
+CFLAGS   = $(INCS) -O3 --std=c++11
 RM       = rm.exe -f
 
 .PHONY: all all-before all-after clean clean-custom
@@ -35,3 +35,6 @@ build/solve.o: solve.cpp
 
 build/code.o: code.cpp
 	$(CPP) -c code.cpp -o build/code.o $(CXXFLAGS)
+
+build/simulated_annealing.o: simulated_annealing.cpp
+	$(CPP) -c simulated_annealing.cpp -o build/simulated_annealing.o $(CXXFLAGS)

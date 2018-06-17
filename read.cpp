@@ -40,7 +40,7 @@ void read_data(
         
     }
     //cerr << global:: instance_ids[0] << " " << global:: instance_apps[0] << " " << global:: instance_machines[2] << endl;
-    cerr << "input instance_deploy_num = " << (global:: instance_deploy_num = global:: instance_ids.size()) << endl;
+    cerr << "input instance_deploy_num = " << (global:: instance_deploy_num = global:: instance_ids.size() -1) << endl;
 
     io::CSVReader<7> in1(app_resources_file);
     while(in1.read_row(
@@ -62,7 +62,7 @@ void read_data(
          << global:: app_m[3] << " " 
          << global:: app_pm[3] << endl;
     */
-    cerr << "input app_resource_num = " << (global:: app_resources_num = global:: app_ids.size()) << endl;
+    cerr << "input app_resource_num = " << (global:: app_resources_num = global:: app_ids.size() -1) << endl;
 
     io::CSVReader<7> in2(machine_resources_file);
     while(in2.read_row(
@@ -85,13 +85,18 @@ void read_data(
          << global:: m_lim[3] << " " 
          << global:: pm_lim[3] << endl;
     */
-    cerr << "input machine_resources_num = " << (global:: machine_resources_num = global:: machine_ids.size()) << endl;
+    cerr << "input machine_resources_num = " << (global:: machine_resources_num = global:: machine_ids.size() -1) << endl;
 
     vector<int> app_inter1, app_inter2, app_inter_max;
     io::CSVReader<3> in3(app_interference_file);
     while(in3.read_row(string_buffers[0], string_buffers[1], int_buffers[2])) {
-        global:: app_inter1.push_back(stoi(string_buffers[0].substr(4)));
-        global:: app_inter2.push_back(stoi(string_buffers[1].substr(4)));
+        int app1 = stoi(string_buffers[0].substr(4)), app2 = stoi(string_buffers[1].substr(4));
+        if(global:: app_inter_list.find(app1) == global:: app_inter_list.end()) {
+            global:: app_inter_list[app1] = vector<int>();
+        }
+        global:: app_inter_list[app1].push_back(make_pair(app2, int_buffers[2]));
+        global:: app_inter1.push_back(app1);
+        global:: app_inter2.push_back(app2);
         global:: app_inter_max.push_back(int_buffers[2]);
     }
     /*cerr << global:: app_inter1[3] << " " 
@@ -102,15 +107,19 @@ void read_data(
 }
 
 void process_data() {
+    int flag = 0; 
     for (auto lines : global:: app_cpu_line ) {
         vector<int> tmp ;
+        if (flag == 0 ) {flag = 1;continue;}
         //cout<< lines.size() << endl;
         assert( lines.size()== global:: time_len ) ;
         for (auto t: lines) tmp.push_back(t*1000);
         global:: app_cpus.push_back(tmp);
     }
+    flag = 0; 
     for (auto lines : global:: app_mem_line ) {
         vector<int> tmp ;
+        if (flag == 0 ) {flag = 1;continue;}
         //cout<< lines.size() << endl;
         assert( lines.size()== global:: time_len ) ;
         for (auto t: lines) tmp.push_back(t*1000);
@@ -118,6 +127,8 @@ void process_data() {
     }
     for (auto &t : global:: cpu_spec ) t*= 1000;
     for (auto &t : global:: mem_spec ) t*= 1000;
-    for (int i =0; i< global:: app_interference_num ;i ++ ) 
-        global:: app_inter_set[global:: app_inter2[i]-1].insert(make_pair(global:: app_inter1[i]-1,global:: app_inter_max[i])) ;
+    for (int i =0; i< global:: app_interference_num ;i ++ ) {
+        global:: app_inter_set[global:: app_inter2[i]].insert(make_pair(global:: app_inter1[i],global:: app_inter_max[i])) ;
+        global:: app_rvs_inter_set[global:: app_inter1[i]].insert(make_pair(global:: app_inter2[i],global:: app_inter_max[i])) ;
+    }
 }

@@ -2,6 +2,7 @@
 #include "read.h"
 #include "code.h"
 #include "misc.h"
+#include "simulated_annealing.h"
 #include <iostream>
 
 int main() {
@@ -11,9 +12,7 @@ int main() {
             "../data_preliminary/scheduling_preliminary_machine_resources_20180606.csv",
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv");
     process_data();
-    Code a(machine_resources_num);
-    a.init();
-    a.show_status();
-    write_output(process_output(a.ins_pos), "../submit.csv");
+    simulated_annealing (20000);
+    //write_output(process_output(a.ins_pos), "../submit.csv");
     return 0;
 }
