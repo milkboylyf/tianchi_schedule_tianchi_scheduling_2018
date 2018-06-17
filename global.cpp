@@ -31,6 +31,7 @@ vector<vector<int> > app_mems= {{}};
 map<int,set<pair<int,int> > > app_inter_set;
 map<int,set<pair<int,int> > > app_rvs_inter_set; 
 
+map<int, int> final_output;
 };
 
 namespace cst {

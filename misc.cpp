@@ -1,7 +1,9 @@
 #include "global.h"
 #include "misc.h"
 #include <iostream>
+#include <fstream>
 #include <map>
+#include <cstring>
 
 using namespace std;
 using namespace global;
@@ -22,18 +24,17 @@ map<int, int> process_output(const map<int, int>& output) {
 void write_output(const map<int, int>& output, string file_name) {
     ofstream f;
     f.open (file_name, ios::trunc);
-    auto it = output.being();
+    auto it = output.begin();
     while(it != output.end()) {
         f << "inst_" << it->first << ", machine_" << it->second << endl;
         it++;
     }
     f.close();
-    return 0;
 }
 
 void check_log(bool res, string section) {
     if(res) cerr << section << " test passed" << endl;
-    else cerr << section << " test failed !!" << endl;
+    else cerr << section << " test failed ! <-----------------" << endl;
 }
 double tmp_sum[1000000];
 const double EPS = 1e-4;
@@ -133,14 +134,19 @@ void check_output(const map<int, int>& output) {
     for(auto it = machine_alloc.begin(); it != machine_alloc.end(); it++) {
         map<int, int> app_count;
         for(int ins: it->second) {
-            if(app_count.find(instance_apps[ins]) == app_count.end())
-                app_count[instance_apps[ins]] = 0;
-            app_count[instance_apps[ins]]++;
+            int app = instance_apps[ins];
+            if(app_count.find(app) == app_count.end())
+                app_count[app] = 0;
+            app_count[app]++;
         }
-        for(auto it = app_count.begin(); it != app_count.end(); it++) {
-            for(pair<int, int> inter: app_inter_list[it->first]) {
+        for(auto it2 = app_count.begin(); it2 != app_count.end(); it2++) {
+            for(const pair<int, int>& inter: app_inter_list[it2->first]) {
                 if(app_count[inter.first] > inter.second) {
                     check_result = flag = false;
+                    /*
+                    cerr << "interference limit " << it2->first << " " << inter.first << " " << inter.second 
+                         << " conflict with k = " << app_count[inter.first] << endl;
+                    */
                 }
             }
         }
@@ -148,6 +154,12 @@ void check_output(const map<int, int>& output) {
     check_log(flag, "interference limit");
 
     // every instance allocated?
+    flag = true;
+    if(output.size() != int(instance_ids.size()) - 1) {
+        check_result = flag = false;
+        //cerr << output.size() << " " << instance_ids.size() - 1 << endl;
+    }
+    check_log(flag, "every instance allocated");
 
     // valid instance id and machine id?
 

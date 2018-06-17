@@ -43,5 +43,5 @@ void simulated_annealing (double end_time) {
         //cout << "fail to move:" << tmp_i <<endl;
         counter++;
 	}
-    
+    global:: final_output = a.ins_pos;
 }
