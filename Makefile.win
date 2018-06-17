@@ -4,8 +4,8 @@
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o
-LINKOBJ  = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o
+OBJ      = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o build/dp.o
+LINKOBJ  = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o build/dp.o
 LIBS     = -L"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0" -L"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/lib" -O3 --std=c++11
 INCS     = -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include"
 CXXINCS  = -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include/c++" -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include"
@@ -38,3 +38,6 @@ build/code.o: code.cpp
 
 build/simulated_annealing.o: simulated_annealing.cpp
 	$(CPP) -c simulated_annealing.cpp -o build/simulated_annealing.o $(CXXFLAGS)
+
+build/dp.o: dp.cpp
+	$(CPP) -c dp.cpp -o build/dp.o $(CXXFLAGS)

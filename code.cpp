@@ -233,10 +233,26 @@ Machine::Machine(int ids):m_ids(ids),disk(0),P(0),M(0),PM(0) {
     
     void Code::show_status() {
         int instance_num = 0;
+        double all_cpu = 0, max_cpu=0, cpu_limit = 0, all_mem =0, max_mem = 0, mem_limit = 0, all_disk = 0, disk_limit = 0;
         double min_machine_score = 10*98;
-        for (auto &t :m_ins) {instance_num += t.ins_ids.size();if (!t.empty())min_machine_score = min(min_machine_score,t.score());}
+        for (auto &t :m_ins) {
+            instance_num += t.ins_ids.size();
+            if (!t.empty())min_machine_score = min(min_machine_score,t.score());
+            int max_c = 0;
+            for (auto value : t.cpu ) {all_cpu+= value;max_c=max(max_c,value);}
+            max_cpu+= max_c;
+            int max_m = 0;
+            for (auto value : t.mem ) {all_mem+= value;max_m=max(max_m,value);}
+            max_mem+= max_m;
+            all_disk+= t.disk;
+            cpu_limit+= cpu_spec[t.m_ids];
+            mem_limit+= mem_spec[t.m_ids];
+            disk_limit+= disk_spec[t.m_ids];
+        }
         cout << "machines num :" << running.size() << " u_score:" << u_score
-         << " delta_score:" << u_score / time_len << " instance num:" << instance_num << " min score:" << min_machine_score << endl;
+         << " delta_score:" << u_score / time_len << " instance num:" << instance_num << " min score:" << min_machine_score 
+         << " max_cpu:" << max_cpu/cpu_limit << " all_cpu:" << all_cpu/time_len/cpu_limit << " max_mem:" << max_mem/mem_limit << " all_mem:" << all_mem/time_len/mem_limit
+          << " all_disk:" << all_disk/disk_limit << endl;
          if ( instance_num < 68219 ) {
              cout << moving_machine_id << " " << moving_ins_id << " " << instance_apps[moving_ins_id] << " " << ins_pos[moving_ins_id] << endl;
              m_ins[moving_machine_id].print();
