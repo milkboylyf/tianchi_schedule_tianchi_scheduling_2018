@@ -141,12 +141,14 @@ void check_output(const map<int, int>& output) {
         }
         for(auto it2 = app_count.begin(); it2 != app_count.end(); it2++) {
             for(const pair<int, int>& inter: app_inter_list[it2->first]) {
-                if(app_count[inter.first] > inter.second) {
+                if(app_count.count(inter.first) &&  app_count[inter.first] > inter.second + ( ! inter.second && it2->first == inter.first) ) {
                     check_result = flag = false;
+                    
                     /*
                     cerr << "interference limit " << it2->first << " " << inter.first << " " << inter.second 
                          << " conflict with k = " << app_count[inter.first] << endl;
                     */
+                    
                 }
             }
         }

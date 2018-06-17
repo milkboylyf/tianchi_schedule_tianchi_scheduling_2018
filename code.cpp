@@ -41,12 +41,13 @@ Machine::Machine(int ids):m_ids(ids),disk(0),P(0),M(0),PM(0) {
         
         
         int ins_app = instance_apps[ins];
-        if ( m_ids == 951 && ins == 7682) {
+        if ( ins_ids.size() >=0 && ins_app == 4357 ) {
             //cout << ins << " " << ins_app << " " ; 
             //print();
         }
-        if (constant.count(ins)) return false;
-        if ( disk_spec[m_ids] < disk + app_apply[ins_app] 
+        if (constant.count(ins)) return false;                      //静态实例，不能移动 
+         
+        if ( disk_spec[m_ids] < disk + app_apply[ins_app]           //各项属性不能超分 
             || p_lim[m_ids] < P + app_p[ins_app]
             // || m_lim[m_ids] < M + app_m[ins_app]                 //there's no positive value in app_m 
             || pm_lim[m_ids] < PM + app_pm[ins_app] ) 
@@ -56,9 +57,9 @@ Machine::Machine(int ids):m_ids(ids),disk(0),P(0),M(0),PM(0) {
                 || mem_spec[m_ids] < mem[i] + app_mems[ins_app][i] )
             return false;
         
-        if (app_inter_set.count(ins_app)) 
+        if (app_inter_set.count(ins_app))                           //查找干扰和反向干扰 
         for (auto &t:app_inter_set[ins_app])
-            if ( apps.count(t.first)&& (apps.count(ins_app)? t.second<=apps[ins_app]:!t.second) )
+            if ( apps.count(t.first) && (apps.count(ins_app) ? t.second<=apps[ins_app] : !t.second ) )
             return false;
         if (app_rvs_inter_set.count(ins_app)) 
         for (auto &t:app_rvs_inter_set[ins_app])
@@ -77,9 +78,9 @@ Machine::Machine(int ids):m_ids(ids),disk(0),P(0),M(0),PM(0) {
         //M += app_m[ins_app];                 //there's no positive value in app_m 
         PM += app_pm[ins_app]; 
         
-        if ( m_ids == 3093) {
-            //cout << ins << " " << ins_app; 
+        if ( ins_ids.size() >5 && ins_app == 8439 ) {
             //print();
+            //cout << ins << " " << ins_app << " " ; 
         }
         
         return true;
@@ -213,7 +214,7 @@ Machine::Machine(int ids):m_ids(ids),disk(0),P(0),M(0),PM(0) {
             u_score -= m_ins[ins_pos[moving_ins_id]].score();
             u_score -= m_ins[moving_machine_id].score();
             bool add_successfully =  m_ins[moving_machine_id].add_instance(moving_ins_id);
-            //cerr << moving_ins_id <<endl;
+            //cerr << moving_ins_id << " " << instance_apps[moving_ins_id] << endl;
             //m_ins[moving_machine_id].print();
             assert(add_successfully);
             bool del_successfully = m_ins[ins_pos[moving_ins_id]].del_instance(moving_ins_id);
