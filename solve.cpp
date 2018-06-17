@@ -1,6 +1,7 @@
 #include "global.h"
 #include "read.h"
 #include "code.h"
+#include "misc.h"
 #include <iostream>
 
 int main() {
@@ -13,5 +14,6 @@ int main() {
     Code a(machine_resources_num);
     a.init();
     a.show_status();
+    write_output(process_output(a.ins_pos), "../submit.csv");
     return 0;
 }
