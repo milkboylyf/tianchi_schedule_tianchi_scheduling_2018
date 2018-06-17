@@ -12,7 +12,8 @@ int main() {
             "../data_preliminary/scheduling_preliminary_machine_resources_20180606.csv",
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv");
     process_data();
-    simulated_annealing (20000);
-    //write_output(process_output(a.ins_pos), "../submit.csv");
+    simulated_annealing (60);
+    check_output(global:: final_output);
+    write_output(process_output(global:: final_output), "../submit.csv");
     return 0;
 }

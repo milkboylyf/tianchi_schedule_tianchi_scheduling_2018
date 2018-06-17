@@ -1,57 +1,68 @@
 #include "dp.h"
+#include "global.h"
+#include <cstring>
+#include <cassert>
 
-bool InstanceData:: operator< ( const InstanceData &t ) const {
-    if ( app_apply[ins_id] == app_apply[t.ins_id] ) {
-        //if ( app_cpus[ins_id][0] >= 16 || 
-        return app_cpus[ins_id][0] > app_cpus[t.ins_id][0];
-    }
-    return app_apply[ins_id] > app_apply[t.ins_id];
-}
-InstanceData::InstanceData(int id, bool deployed)
-    :ins_id(id),is_deployed(deployed),app_id(instance_apps[id]){}
+using namespace global;
+const int MAX_DISK = 1050;
+int dp_use[MAX_DISK];
+int back_track[MAX_DISK];
+int state_p[MAX_DISK], state_m[MAX_DISK], state_pm[MAX_DISK];
+vector<int> state_cpu[MAX_DISK], state_mem[MAX_DISK];
 
-DP::DP():disk_spec({0,40,60,80,100,120,150,167,180,200,250,300,500,600,650,1000,1024}),u_score(0) {
-    for (int i=0;i<=machine_resources_num;i++) m_ins.push_back(Machine(i));
-}
-
-void DP::init() {
-    for (int i=0;i<disk_spec.size();i++) {
-        disk_index[disk_spec[i]]=i;
-        ins_remain.push_back(0);
-        data.push_back(vector<InstanceData>({}));
-    }
-    for (int i=1;i<=instance_deploy_num;i++ ) {
-        int tmp_spec = app_apply[instance_apps[i]];
-        //disk_ins_set[tmp_spec].insert(i);
-        ins_remain[disk_index[tmp_spec]]++;
-        data[disk_index[tmp_spec]].push_back(InstanceData(i,0));
-    }
-    for (int i=1;i<disk_spec.size();i++) 
-        sort(data[i].begin(),data[i].end());
+bool check_put(int state_id, int ins_line) {
+    
 }
 
-
-void DP::dynamic_programming() {
-    memset(f,0,sizeof(f));
-    memset(tr,0,sizeof(tr));
-    f[0]=1;
-    for (int i=disk_spec.size()-1;i>0;i--) {
-        memset(v,0,sizeof(v));
-        for (int j=disk_spec[i];j<1200;j++) 
-            if (!f[j]&&f[j-disk_spec[i]]&&v[j-disk_spec[i]]<ins_remain[i]) 
-                f[j]=1,v[j]=v[j-disk_spec[i]]+1,tr[j]=i;
+vector<int> multi_knapsack_fill(int machine_id, map<int, vector<int> >& items) {
+    memset(back_track, -1, sizeof back_track);
+    dp_use[0] = 0;
+    auto it = items.end();
+    do {
+        it--;
+        memset(dp_use, -1, sizeof dp_use);
+        int cnt = it->second.size();
+        for(int i = 0; i < MAX_DISK; i++) {
+            if(back_track[i] != -1) 
+                dp_use[i] = cnt;
+        }
+        for(int i = 0; i < MAX_DISK; i++) {
+            if(i + it->first >= MAX_DISK) break;
+            if(dp_use[i] > 0 && dp_use[i + it->first] == -1) {
+                dp_use[i + it->first] = dp_use[i] - 1;
+                back_track[i + it->first] = it->first;
+            }
+        }
+    } while(it != items.end());
+    int o = MAX_DISK - 1;
+    for(; o >= 0; o--) {
+        if(back_track[o] >= 0) break;
     }
+    assert(o > 0);
+    vector<int> used_items;
+    do {
+        used_items.push_back(items[back_track[o]].back());
+        items[back_track[o]].pop_back();
+        o -= back_track[o];
+    } while(o != 0);
+    return used_items;
 }
 
-void DP::package_up( int m ) {
-    //for (int i=0;i<n;i++) {
-        
-    //}
-}
-
-void DP::dp_plan() {
-    for (int i=1;i<machine_resources_num;i++) {
-        dynamic_programming();
-        package_up(i);
+void multi_knapsack_solve() {
+    map<int, int> result;
+    map<int, vector<int> > items;
+    for(int ins_line = 1;  ins_line < int(instance_ids.size()); ins_line++) {
+        int app = instance_apps[ins_line];
+        if(items.find(app_apply[app]) == items.end()) items[app_apply[app]] = vector<int> ();
+        items[app_apply[app]].push_back(ins_line);
     }
+
+    for(int machine_id = 1; machine_id < int(machine_ids.size()); machine_id++) {
+        vector<int> tmp = multi_knapsack_fill(machine_id, items);
+        for(int ins: tmp) {
+            assert(result.find(ins) == result.end());
+            result[ins] = machine_id;
+        }
+    }
+    global:: final_output = result;
 }

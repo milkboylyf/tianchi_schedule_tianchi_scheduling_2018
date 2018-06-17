@@ -92,7 +92,7 @@ void read_data(
     while(in3.read_row(string_buffers[0], string_buffers[1], int_buffers[2])) {
         int app1 = stoi(string_buffers[0].substr(4)), app2 = stoi(string_buffers[1].substr(4));
         if(global:: app_inter_list.find(app1) == global:: app_inter_list.end()) {
-            global:: app_inter_list[app1] = vector<int>();
+            global:: app_inter_list[app1] = vector<pair<int, int> >();
         }
         global:: app_inter_list[app1].push_back(make_pair(app2, int_buffers[2]));
         global:: app_inter1.push_back(app1);
