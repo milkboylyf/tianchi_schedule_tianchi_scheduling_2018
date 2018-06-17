@@ -21,6 +21,7 @@ vector<int> cpu_spec = {-1}, mem_spec = {-1}, disk_spec = {-1}, p_lim = {-1}, m_
 
 int app_interference_num;
 vector<int> app_inter1, app_inter2, app_inter_max;
+map<int, vector<pair<int, int> > > app_inter_list;
 
 int time_len = 98 ;
 
