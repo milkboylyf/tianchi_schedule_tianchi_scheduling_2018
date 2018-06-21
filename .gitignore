@@ -4,4 +4,4 @@ build/
 *.layout
 *.exe
 *.o
-./submit.csv
+submit.csv
