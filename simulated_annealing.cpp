@@ -3,7 +3,7 @@
 bool judge( double score, double new_score ,double temper) {
     if (score >new_score) return true;
     double dE = score-new_score;
-    return exp( dE /temper )*10000 > rand()%10000;;
+    //return exp( dE /temper )*10000 > rand()%10000;;
     return false;
 }
 
@@ -15,15 +15,20 @@ void simulated_annealing (double end_time) {
 	Code a(machine_resources_num);
 	a.init();
 	a.show_status();
+	for (int i=0;i<10;i++) {
+    	a.reset();
+    	a.init();
+    	a.show_status();
+    }
 	double score = a.ave_score(), temper = 1e-3;
 	
 	int counter = 0, failed_times= 0, change_times = 0;
 	while ((double)clock()/CLOCKS_PER_SEC   - starttime < end_time ) {
         int tmp_i = rand()%instance_deploy_num+1;
-        if (a.move(tmp_i)) {
-            int tmp_j = rand()%instance_deploy_num+1;
+        if (a.move_ins(tmp_i)) {
+            int tmp_j = rand()%instance_deploy_num+1 ;
             //while (tmp_j==tmp_i) tmp_j = rand()%instance_deploy_num+1;
-            if (a.move(tmp_j)) {
+            if (a.move_ins(tmp_j)) {
                 double new_score = a.ave_score();
                 if (judge(score,new_score,temper)) {
                     score = new_score;
@@ -43,5 +48,10 @@ void simulated_annealing (double end_time) {
         //cout << "fail to move:" << tmp_i <<endl;
         counter++;
 	}
+	map<int,int> disk_space;
+	for (auto m :a.m_ins) 
+	   disk_space[m.disk]++;
+	for (auto d:disk_space) 
+	   cout << d.first << ":" << d.second <<endl;
     global:: final_output = a.ins_pos;
 }

@@ -94,10 +94,10 @@ void read_data(
         if(global:: app_inter_list.find(app1) == global:: app_inter_list.end()) {
             global:: app_inter_list[app1] = vector<pair<int, int> >();
         }
-        global:: app_inter_list[app1].push_back(make_pair(app2, int_buffers[2]));
+        global:: app_inter_list[app1].push_back(make_pair(app2, int_buffers[2]+(app1==app2)));
         global:: app_inter1.push_back(app1);
         global:: app_inter2.push_back(app2);
-        global:: app_inter_max.push_back(int_buffers[2]);
+        global:: app_inter_max.push_back(int_buffers[2]+(app1==app2));
     }
     /*cerr << global:: app_inter1[3] << " " 
          << global:: app_inter2[3] << " " 
@@ -110,6 +110,7 @@ void process_data() {
     int flag = 0; 
     for (auto lines : global:: app_cpu_line ) {
         vector<int> tmp ;
+        global:: app_ins_num.push_back(0);
         if (flag == 0 ) {flag = 1;continue;}
         //cout<< lines.size() << endl;
         assert( lines.size()== global:: time_len ) ;
@@ -125,10 +126,53 @@ void process_data() {
         for (auto t: lines) tmp.push_back(t*1000);
         global:: app_mems.push_back(tmp);
     }
+    
+    int counter = 0;
+    double ave_cpu_p_disk = 0;
+    for (int i=1;i<=global:: instance_deploy_num;i++) {
+        global:: app_ins_num[global:: instance_apps[i]]++;
+        double max_cpu =0;
+        for (double t : global:: app_cpu_line[global:: instance_apps[i]]) max_cpu=max(max_cpu,t);
+        
+        //cout << max_cpu << "\t" << global:: app_apply[global:: instance_apps[i]]
+        //    << "\t" << max_cpu/global:: app_apply[global:: instance_apps[i]] << endl;
+        if (max_cpu <16 ) {
+            max_cpu = max_cpu/global:: app_apply[global:: instance_apps[i]];
+            ave_cpu_p_disk += max_cpu;
+            ++counter;
+        }    
+    }
+    cout << "ave_cpu_p_disk: "<< ave_cpu_p_disk/global:: instance_deploy_num << " num: " << counter << endl;
+    counter = 0;
+    
+    
+    for (int i =1; i<= global:: app_resources_num ;i ++ ) 
+        global:: self_inter_num.push_back(0);
+        
     for (auto &t : global:: cpu_spec ) t*= 1000;
     for (auto &t : global:: mem_spec ) t*= 1000;
     for (int i =0; i< global:: app_interference_num ;i ++ ) {
+        if ( global:: app_inter1[i] == global:: app_inter2[i] ) 
+            global:: self_inter_num[global:: app_inter1[i]]=global:: app_inter_max[i];
+        if ( global:: app_inter1[i] == global:: app_inter2[i] && global:: app_inter_max[i]==0 ) { 
+            cout << global:: app_inter1[i] << ":\t" << global:: app_inter_max[i] 
+            << "\t" << global:: app_ins_num[global:: app_inter1[i]] << endl;
+            counter += global:: app_ins_num[global:: app_inter1[i]]; 
+        }
+        global:: app_inter_map[global:: app_inter2[i]][global:: app_inter1[i]]=global:: app_inter_max[i] ;
+        //if (global:: app_inter_max[i]==0) {
         global:: app_inter_set[global:: app_inter2[i]].insert(make_pair(global:: app_inter1[i],global:: app_inter_max[i])) ;
         global:: app_rvs_inter_set[global:: app_inter1[i]].insert(make_pair(global:: app_inter2[i],global:: app_inter_max[i])) ;
+        //}
+    }
+    cout << "counter:" << counter <<endl; 
+    
+    counter = 0;
+    for (int i =1; i<= global:: app_resources_num ;i ++ ) {
+        global:: app_inter_counter[i] = (global:: app_inter_set.count(i) ? global:: app_inter_set[i].size() : 0) 
+            + (global:: app_rvs_inter_set.count(i) ? global:: app_rvs_inter_set[i].size() : 0) ;
+        if ( global:: app_inter_map[i].count(i) && global:: app_inter_map[i][i] == 1) 
+            cout << i << "\t" << global:: app_inter_counter[i] << "\t" <<  global:: app_ins_num[i] 
+            << "\t" << global:: app_apply[i] << "\t" << global:: app_inter_map[i][i] << endl;
     }
 }

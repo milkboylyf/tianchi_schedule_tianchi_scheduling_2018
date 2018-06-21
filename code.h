@@ -31,9 +31,13 @@ struct Machine {
     
     bool empty(); 
     
+    void clear();
+    
     double score();
     
     void set_constant( int ins );
+    
+    bool spec_accept( int ins );
     
     bool add_instance(int ins);
     
@@ -49,22 +53,25 @@ struct Code {
     int len;
     
     double u_score;
-    int running_num;
     map<int,int> ins_pos;
     
     Code(int _len);
     
     stack<pair<int,int> > move_log;
     
-    void init();
+    void reset();
     
-    int move(int ins);
+    virtual void init();
+    
+    bool move_ins( int ins );
+    
+    bool move(int ins, int tmp_m);
     
     bool add_machine();
     
     bool del_machine();
     
-    void recover() ;
+    void recover(int len = 0);
     
     int moving_ins_id, moving_machine_id;
     
@@ -73,6 +80,8 @@ struct Code {
     double ave_score() ;
     
     void accept();
+    
+    double recalculate_score() ;
 };
 
 #endif

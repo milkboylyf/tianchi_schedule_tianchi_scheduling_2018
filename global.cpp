@@ -28,8 +28,13 @@ int time_len = 98 ;
 
 vector<vector<int> > app_cpus= {{}};
 vector<vector<int> > app_mems= {{}};
+vector<int> app_ins_num ;
+
 map<int,set<pair<int,int> > > app_inter_set;
 map<int,set<pair<int,int> > > app_rvs_inter_set; 
+map<int,map<int,int> > app_inter_map; 
+map<int,int> app_inter_counter;
+vector<int> self_inter_num={-1};
 
 map<int, int> final_output;
 };
