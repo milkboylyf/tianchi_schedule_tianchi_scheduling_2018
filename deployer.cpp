@@ -110,7 +110,7 @@ void Deployer::make_view (Machine &m) {
             &&imposible_apps[i]
                 <= ( m.apps.count(i) ?m.apps[i]:0) ) continue;
         if (!f[disk_spec[m.m_ids]-m.disk-app_apply[i]] && !f[disk_spec[m.m_ids]-m.disk-app_apply[i]-4]) continue;
-        if (!m.spec_accept(i)) continue;
+        if (!m.spec_eval(i)) continue;
         AppData tmp_a(i);
         //if (m.empty()) {
             tmp_a.a[0]=self_inter_num[i]? (app_inter_counter[i]*app_ins_set[i].size()/self_inter_num[i]):-app_inter_counter[i];

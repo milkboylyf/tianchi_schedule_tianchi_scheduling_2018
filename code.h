@@ -37,7 +37,9 @@ struct Machine {
     
     void set_constant( int ins );
     
-    bool spec_accept( int ins );
+    bool spec_eval( int ins );
+    
+    bool inter_eval( int ins_app );
     
     bool add_instance(int ins);
     
@@ -59,7 +61,11 @@ struct Code {
     
     stack<pair<int,int> > move_log;
     
+    int get_level( int ins );
+    
     void reset();
+    
+    bool exchange();
     
     virtual void init();
     

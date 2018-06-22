@@ -16,8 +16,9 @@ vector<int> app_apply = {-1};
 vector<int> app_p = {-1}, app_m = {-1}, app_pm = {-1};
 
 int machine_resources_num;
-vector<int> machine_ids = {-1};
-vector<int> cpu_spec = {-1}, mem_spec = {-1}, disk_spec = {-1}, p_lim = {-1}, m_lim = {-1}, pm_lim = {-1};
+vector<int> machine_ids = {0};
+vector<int> cpu_spec = {100000000}, mem_spec = {100000000}, disk_spec = {100000000};
+vector<int> p_lim = {100}, m_lim = {100}, pm_lim = {100};
 
 int app_interference_num;
 vector<int> app_inter1, app_inter2, app_inter_max;
