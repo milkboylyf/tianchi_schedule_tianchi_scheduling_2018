@@ -29,6 +29,7 @@ int time_len = 98 ;
 
 vector<vector<int> > app_cpus= {{}};
 vector<vector<int> > app_mems= {{}};
+vector<int> app_max_cpu = {-1};
 vector<int> app_ins_num ;
 
 map<int,set<pair<int,int> > > app_inter_set;

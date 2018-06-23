@@ -14,7 +14,7 @@ int main() {
             "../data_preliminary/scheduling_preliminary_machine_resources_20180606.csv",
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv");
     process_data();
-    simulated_annealing (20);
+    simulated_annealing (0);
     /*
     DP dp(machine_resources_num);
     dp.init();

@@ -33,6 +33,8 @@ struct Machine {
     
     void clear();
     
+    bool check_cpu_overload( int ins );
+    
     double score();
     
     void set_constant( int ins );
@@ -53,6 +55,10 @@ struct Code {
     set<int> stop;
     vector<Machine> m_ins;
     int len;
+    
+    map<int,int> disk_index;       //磁盘规格下标 
+    vector<int> sim_disk_spec;          //磁盘规格
+    vector<int> ins_remain;         //每种规格剩余实例数
     
     double u_score;
     map<int,int> ins_pos;

@@ -15,9 +15,6 @@ struct InstanceData {
 struct DP :Code {
     vector<vector<InstanceData> > data;      //用来排序应用实例
     
-    map<int,int> disk_index;       //磁盘规格下标 
-    vector<int> sim_disk_spec;          //磁盘规格
-    vector<int> ins_remain;         //每种规格剩余实例数
     vector<set<int> > disk_ins_set;    //每种规格的磁盘的实例 
     
     int f[2000];                //dp数组 

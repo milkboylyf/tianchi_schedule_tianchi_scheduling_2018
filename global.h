@@ -37,6 +37,7 @@ extern int time_len;
 
 extern vector<vector<int> > app_cpus;
 extern vector<vector<int> > app_mems;
+extern vector<int> app_max_cpu;
 extern vector<int> app_ins_num;
 
 extern map<int,set<pair<int,int> > > app_inter_set; 

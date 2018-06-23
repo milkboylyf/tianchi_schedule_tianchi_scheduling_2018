@@ -16,7 +16,7 @@ bool InstanceData:: operator< ( const InstanceData &t ) const {
 InstanceData::InstanceData(int id, bool deployed)
     :ins_id(id),is_deployed(deployed),app_id(instance_apps[id]){}
 
-DP::DP(int _len):Code(_len),sim_disk_spec({0,40,60,80,100,120,150,167,180,200,250,300,500,600,650,1000,1024}),u_score(0) {}
+DP::DP(int _len):Code(_len),u_score(0) {}
 
 void DP::init() {
     for (int i=0;i<sim_disk_spec.size();i++) {

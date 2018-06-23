@@ -114,7 +114,12 @@ void process_data() {
         if (flag == 0 ) {flag = 1;continue;}
         //cout<< lines.size() << endl;
         assert( lines.size()== global:: time_len ) ;
-        for (auto t: lines) tmp.push_back(t*1000);
+        double tmp_max_cpu = 0;
+        for (auto t: lines) {
+            tmp.push_back(t*1000);
+            tmp_max_cpu = max(tmp_max_cpu,t*1000);
+        }
+        global:: app_max_cpu.push_back(tmp_max_cpu);
         global:: app_cpus.push_back(tmp);
     }
     flag = 0; 
