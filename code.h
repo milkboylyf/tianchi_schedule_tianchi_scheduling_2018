@@ -71,6 +71,8 @@ struct Code {
     
     void reset();
     
+    bool mix_machine
+    
     bool exchange();
     
     virtual void init();
