@@ -35,10 +35,11 @@ extern map<int, vector<pair<int, int> > > app_inter_list;
 extern int time_len;
 
 
-extern vector<vector<int> > app_cpus;
-extern vector<vector<int> > app_mems;
-extern vector<int> app_max_cpu;
-extern vector<int> app_ins_num;
+extern map<int,int> instance_index ; 
+//extern vector<vector<int> > app_cpu_line;
+//extern vector<vector<int> > app_mem_line;
+extern vector<double> app_max_cpu;
+extern vector<double> app_ins_num;
 
 extern map<int,set<pair<int,int> > > app_inter_set; 
 extern map<int,set<pair<int,int> > > app_rvs_inter_set;

@@ -14,6 +14,8 @@ int main() {
             "../data_preliminary/scheduling_preliminary_machine_resources_20180606.csv",
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv");
     process_data();
+    //check_output_file("../../submit20180629215200.csv");
+    //check_output_file("../../submit20180626111523.csv");
     simulated_annealing (0);
     /*
     DP dp(machine_resources_num);

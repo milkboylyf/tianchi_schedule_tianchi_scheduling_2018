@@ -162,10 +162,10 @@ bool Deployer::set_ins( int ins, int m , bool constant) {
             update_imposible_apps(t.first,0);
     if (app_rvs_inter_set.count(ins_app)) 
     for (auto &t:app_rvs_inter_set[ins_app])
-        if ( !t.second || (m_ins[m].apps.count(t.first) && t.second==m_ins[m].apps[t.first]) ) {
+        //if ( !t.second || (m_ins[m].apps.count(t.first) && t.second==m_ins[m].apps[t.first]) ) {
                 //cout << "INTERFERENCE" << t.first << " " << ins_app << endl;
             update_imposible_apps(t.first,t.second);
-        }
+        //}
     if (constant) 
         m_ins[m].set_constant(ins);
     return true;

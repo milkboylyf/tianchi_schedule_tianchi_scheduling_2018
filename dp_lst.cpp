@@ -2,14 +2,14 @@
 
 bool InstanceData:: operator< ( const InstanceData &t ) const {
     if ( app_apply[app_id] == app_apply[t.app_id] ) {
-        //if ( app_cpus[app_id][0] >= 16 || 
+        //if ( app_cpu_line[app_id][0] >= 16 || 
         if ( app_inter_map[app_id].count(app_id) && app_inter_map[t.app_id].count(t.app_id)) 
             return app_inter_map[app_id][app_id] < app_inter_map[t.app_id][t.app_id];
         if ( app_inter_map[app_id].count(app_id) ) return true;
         if ( app_inter_map[t.app_id].count(t.app_id)) return false;
         if (app_inter_counter[app_id]>50) return app_inter_counter[app_id] > app_inter_counter[t.app_id];
         if (app_inter_counter[t.app_id]>50) return false;
-        return app_cpus[app_id][0] > app_cpus[t.app_id][0];
+        return app_cpu_line[app_id][0] > app_cpu_line[t.app_id][0];
     }
     return app_apply[app_id] > app_apply[t.app_id];
 }

@@ -1,5 +1,7 @@
 #include "global.h"
 #include "misc.h"
+#include "read.h"
+#include "code.h"
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -37,7 +39,7 @@ void check_log(bool res, string section) {
     else cerr << section << " test failed ! <-----------------" << endl;
 }
 double tmp_sum[1000000];
-const double EPS = 1e-4;
+const double EPS = 1e-7;
 
 void check_output(const map<int, int>& output) {
     cerr << "\n\n############## start check_output ###############\n" << endl;
@@ -171,4 +173,17 @@ void check_output(const map<int, int>& output) {
     }
 
     // compute score
+}
+
+void check_output_file(string output_file_name) {
+    map<int,int> result ;
+    read_output_file(output_file_name,result);
+    check_output(result);
+    Code c(machine_resources_num);
+    for (auto t:result) {
+        c.move(t.first,t.second);
+    }
+    //cout << "score: " << c.ave_score() << endl;
+    c.show_status();
+    c.show_extra_info();
 }

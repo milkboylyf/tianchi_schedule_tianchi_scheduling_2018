@@ -116,11 +116,11 @@ void process_data() {
         assert( lines.size()== global:: time_len ) ;
         double tmp_max_cpu = 0;
         for (auto t: lines) {
-            tmp.push_back(t*1000);
-            tmp_max_cpu = max(tmp_max_cpu,t*1000);
+            //tmp.push_back(t*1000);
+            tmp_max_cpu = max(tmp_max_cpu,t);
         }
         global:: app_max_cpu.push_back(tmp_max_cpu);
-        global:: app_cpus.push_back(tmp);
+        //global:: app_cpu_line.push_back(tmp);
     }
     flag = 0; 
     for (auto lines : global:: app_mem_line ) {
@@ -128,13 +128,14 @@ void process_data() {
         if (flag == 0 ) {flag = 1;continue;}
         //cout<< lines.size() << endl;
         assert( lines.size()== global:: time_len ) ;
-        for (auto t: lines) tmp.push_back(t*1000);
-        global:: app_mems.push_back(tmp);
+        //for (auto t: lines) tmp.push_back(t*1000);
+        //global:: app_mem_line.push_back(tmp);
     }
     
     int counter = 0;
     double ave_cpu_p_disk = 0;
     for (int i=1;i<=global:: instance_deploy_num;i++) {
+        global:: instance_index[global:: instance_ids[i]] = i;
         global:: app_ins_num[global:: instance_apps[i]]++;
         double max_cpu =0;
         for (double t : global:: app_cpu_line[global:: instance_apps[i]]) max_cpu=max(max_cpu,t);
@@ -147,37 +148,55 @@ void process_data() {
             ++counter;
         }    
     }
-    cout << "ave_cpu_p_disk: "<< ave_cpu_p_disk/global:: instance_deploy_num << " num: " << counter << endl;
+    //cout << "ave_cpu_p_disk: "<< ave_cpu_p_disk/global:: instance_deploy_num << " num: " << counter << endl;
     counter = 0;
     
     
     for (int i =1; i<= global:: app_resources_num ;i ++ ) 
         global:: self_inter_num.push_back(0);
         
-    for (auto &t : global:: cpu_spec ) t*= 1000;
-    for (auto &t : global:: mem_spec ) t*= 1000;
+    //for (auto &t : global:: cpu_spec ) t*= 1000;
+    //for (auto &t : global:: mem_spec ) t*= 1000;
     for (int i =0; i< global:: app_interference_num ;i ++ ) {
         if ( global:: app_inter1[i] == global:: app_inter2[i] ) 
             global:: self_inter_num[global:: app_inter1[i]]=global:: app_inter_max[i];
+            
+            /*
         if ( global:: app_inter1[i] == global:: app_inter2[i] && global:: app_inter_max[i]==0 ) { 
             cout << global:: app_inter1[i] << ":\t" << global:: app_inter_max[i] 
             << "\t" << global:: app_ins_num[global:: app_inter1[i]] << endl;
             counter += global:: app_ins_num[global:: app_inter1[i]]; 
         }
+        */
+        
         global:: app_inter_map[global:: app_inter2[i]][global:: app_inter1[i]]=global:: app_inter_max[i] ;
         //if (global:: app_inter_max[i]==0) {
         global:: app_inter_set[global:: app_inter2[i]].insert(make_pair(global:: app_inter1[i],global:: app_inter_max[i])) ;
         global:: app_rvs_inter_set[global:: app_inter1[i]].insert(make_pair(global:: app_inter2[i],global:: app_inter_max[i])) ;
         //}
     }
-    cout << "counter:" << counter <<endl; 
+    
+    //cout << "counter:" << counter <<endl; 
     
     counter = 0;
     for (int i =1; i<= global:: app_resources_num ;i ++ ) {
         global:: app_inter_counter[i] = (global:: app_inter_set.count(i) ? global:: app_inter_set[i].size() : 0) 
             + (global:: app_rvs_inter_set.count(i) ? global:: app_rvs_inter_set[i].size() : 0) ;
+            
+        /*
         if ( global:: app_inter_map[i].count(i) && global:: app_inter_map[i][i] == 1) 
             cout << i << "\t" << global:: app_inter_counter[i] << "\t" <<  global:: app_ins_num[i] 
             << "\t" << global:: app_apply[i] << "\t" << global:: app_inter_map[i][i] << endl;
+            */
+    }
+}
+
+void read_output_file( string output_file_name, map<int,int> &result) {
+    io::CSVReader<2> in0(output_file_name);
+    std::string string_buffers[10];
+    int int_buffers[10];
+    result.clear();
+    while(in0.read_row(string_buffers[0], string_buffers[1]))  {
+        result[global:: instance_index[stoi(string_buffers[0].substr(5))]] = stoi(string_buffers[1].substr(8));
     }
 }

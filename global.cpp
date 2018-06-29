@@ -26,11 +26,12 @@ map<int, vector<pair<int, int> > > app_inter_list;
 
 int time_len = 98 ;
 
+map<int,int> instance_index ; 
 
-vector<vector<int> > app_cpus= {{}};
-vector<vector<int> > app_mems= {{}};
-vector<int> app_max_cpu = {-1};
-vector<int> app_ins_num ;
+//vector<vector<int> > app_cpu_line= {{}};
+//vector<vector<int> > app_mem_line= {{}};
+vector<double> app_max_cpu = {-1};
+vector<double> app_ins_num ;
 
 map<int,set<pair<int,int> > > app_inter_set;
 map<int,set<pair<int,int> > > app_rvs_inter_set; 

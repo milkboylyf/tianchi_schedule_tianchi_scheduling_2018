@@ -8,3 +8,7 @@ void read_data(
         
         
 void process_data();
+
+void read_output_file(
+        string output_file_name,
+        map<int,int> &result ); 

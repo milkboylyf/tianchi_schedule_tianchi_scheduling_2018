@@ -17,8 +17,8 @@ struct Machine {
     int m_ids;
     
     set<int> ins_ids;
-    vector<int> cpu;
-    vector<int> mem;
+    vector<double> cpu;
+    vector<double> mem;
     map<int,int> apps; 
     int disk;
     int P;
@@ -71,8 +71,6 @@ struct Code {
     
     void reset();
     
-    bool mix_machine
-    
     bool exchange();
     
     virtual void init();
@@ -96,6 +94,8 @@ struct Code {
     void accept();
     
     double recalculate_score() ;
+    
+    void show_extra_info () ;
 };
 
 #endif
