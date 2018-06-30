@@ -25,6 +25,8 @@ struct Machine {
     int M;
     int PM;
     
+    double score;
+    
     set<int> constant;
     
     Machine(int ids);
@@ -35,7 +37,7 @@ struct Machine {
     
     bool check_cpu_overload( int ins );
     
-    double score();
+    double compute_score();
     
     void set_constant( int ins );
     
@@ -70,6 +72,8 @@ struct Code {
     int get_level( int ins );
     
     void reset();
+    
+    bool move_last_instance();
     
     bool exchange();
     

@@ -47,13 +47,13 @@
         constant.clear();
     }
     
-    double Machine::score() {
-        double s = 0.0;
+    double Machine::compute_score() {
+        score = 0.0;
         if (empty()) return 0.0;
         for (auto t : cpu ) {
-            s += cst::a*exp( max(0.0,(double)t/cpu_spec[m_ids] - cst::b )) - 9 ;
+            score += cst::a*exp( max(0.0,(double)t/cpu_spec[m_ids] - cst::b )) - 9 ;
         }
-        return s;
+        return score;
     }
     
     void Machine::set_constant( int ins ) {
@@ -80,7 +80,6 @@
     
     //查找干扰和反向干扰 
     bool Machine::inter_eval( int ins_app ) {
-        if (m_ids==0) return true;
         if (app_inter_set.count(ins_app))                           
         for (auto &t:app_inter_set[ins_app])
             if ( apps.count(t.first) && (apps.count(ins_app) ? t.second<=apps[ins_app] : !t.second ) ) {
@@ -209,7 +208,7 @@
         {
             //cout << ct <<endl;
             m_ins[ct].add_instance(index[i]);
-            m_ins[ct].set_constant(index[i]);
+            //m_ins[ct].set_constant(index[i]);
             running.insert(ct);
             ins_pos[index[i]] = ct++;
             ins_remain[app_apply[instance_apps[index[i]]]]--;
@@ -262,18 +261,18 @@
         }
             
         for (auto m_id: running) {
-            double t_s = m_ins[m_id].score();
+            double t_s = m_ins[m_id].compute_score();
             //if (t_s > 300 ) 
             //cout<< t_s <<endl;
             u_score += t_s;
         }
         //cout << "score:" << u_score << endl; 
         
-        if (exchange()) cout << " exchange complete. ";
+        if (move_last_instance()) cout << " exchange complete. ";
     }
     
-    //没想好怎么写 
-    bool Code::exchange() {
+    //移动一个实例至另一个machine，如果不能移动，则寻找二次交换 
+    bool Code::move_last_instance() {
         accept();
         int ins_obj=-1, m_obj=-1;
         for (auto m :m_ins)
@@ -301,6 +300,32 @@
         }
     }
     
+    bool Code::exchange() {
+        accept();
+        int ins_a, pos_a, app_a;
+        do {
+            ins_a = rand()%instance_deploy_num+1;
+            pos_a = ins_pos[ins_a];
+            app_a = instance_apps[ins_a];
+        }
+        while ( m_ins[pos_a].score <= 98 ) ;
+        int ins_b , app_b , times = 0;
+        do {
+            ins_b = rand()%instance_deploy_num+1;
+            app_b = instance_apps[ins_b];
+            times ++;
+        }
+        while ( (app_a==app_b || app_apply[app_a] != app_apply[app_b] ) && times <200 );
+        if (times ==200) return false;
+        int pos_b = ins_pos[ins_b];
+        if (move( ins_a , 1 ) && move( ins_b , pos_a ) && move( ins_a , pos_b ) ) {
+            //accept();
+            return true;
+        }
+        //recover();
+        return false;
+    }
+    
     bool Code::move_ins( int ins ) {
         if (get_level(ins)==100) return 0;
         for (int i=0;i<10;i++) {
@@ -319,19 +344,19 @@
         //for (int times = 0;times < 10;times ++ ) {
         //    tmp_m = rand()%len+1;
     
-        u_score -= m_ins[tmp_m].score();
+        u_score -= m_ins[tmp_m].compute_score();
         if ( tmp_m == ins_pos[tmp_i] || !m_ins[tmp_m].add_instance(tmp_i) ) {
-            u_score += m_ins[tmp_m].score();
+            u_score += m_ins[tmp_m].compute_score();
             return false;
         }
-        u_score += m_ins[tmp_m].score();
+        u_score += m_ins[tmp_m].compute_score();
         running.insert(tmp_m);
         
         if (ins_pos[tmp_i]) {
-            u_score -= m_ins[ins_pos[tmp_i]].score();
+            u_score -= m_ins[ins_pos[tmp_i]].compute_score();
             bool del_successfully = m_ins[ins_pos[tmp_i]].del_instance(tmp_i);
             assert(del_successfully);
-            u_score += m_ins[ins_pos[tmp_i]].score();
+            u_score += m_ins[ins_pos[tmp_i]].compute_score();
             if (m_ins[ins_pos[tmp_i]].empty()) running.erase(ins_pos[tmp_i]);
         }
         else ins_remain[app_apply[instance_apps[ins]]]--;
@@ -358,19 +383,19 @@
             moving_ins_id = move_log.top().first;
             moving_machine_id = move_log.top().second;
             move_log.pop();
-            u_score -= m_ins[ins_pos[moving_ins_id]].score();
+            u_score -= m_ins[ins_pos[moving_ins_id]].compute_score();
             bool del_successfully = m_ins[ins_pos[moving_ins_id]].del_instance(moving_ins_id);
             assert(del_successfully);
-            u_score += m_ins[ins_pos[moving_ins_id]].score();
+            u_score += m_ins[ins_pos[moving_ins_id]].compute_score();
             if (m_ins[ins_pos[moving_ins_id]].empty()) running.erase(ins_pos[moving_ins_id]);
             
             if (moving_machine_id) {
-                u_score -= m_ins[moving_machine_id].score();
+                u_score -= m_ins[moving_machine_id].compute_score();
                 bool add_successfully =  m_ins[moving_machine_id].add_instance(moving_ins_id);
                 //cerr << moving_ins_id << " " << instance_apps[moving_ins_id] << endl;
                 //m_ins[moving_machine_id].print();
                 assert(add_successfully);
-                u_score += m_ins[moving_machine_id].score();
+                u_score += m_ins[moving_machine_id].compute_score();
                 running.insert(moving_machine_id);
             }
             else ins_remain[app_apply[instance_apps[moving_ins_id]]]++;
@@ -389,12 +414,12 @@
         double all_cpu = 0, max_cpu=0, cpu_limit = 0, all_mem =0, max_mem = 0, mem_limit = 0, all_disk = 0, disk_limit = 0;
         double min_machine_score = 10*98;
         int counter = 0;
-        cout.precision(10);
+        cout.precision(20);
         for (auto &t :m_ins) 
             if (!t.empty())
         {
             instance_num += t.ins_ids.size();
-            if (!t.empty())min_machine_score = min(min_machine_score,t.score());
+            if (!t.empty())min_machine_score = min(min_machine_score,t.compute_score());
             double max_c = 0;
             double cpu_over=0;
             for (auto value : t.cpu ) {all_cpu+= value;max_c=max(max_c,value);cpu_over+=cst::a*exp(max(0.0,value/cpu_spec[t.m_ids]-cst::b))-10;}
@@ -408,7 +433,7 @@
             mem_limit+= mem_spec[t.m_ids];
             disk_limit+= disk_spec[t.m_ids];
             
-            /* 
+            //* 
             set<int> inter_limit;
             for (auto l : t.apps ) {
                 int ins_app = l.first;
@@ -425,28 +450,31 @@
                         inter_limit.insert(lt.first);
                     }
             }
+            
             //if (t.disk-disk_spec[t.m_ids]<=-60) {
             if ((double)max_c / cpu_spec[t.m_ids]>0.5) {
             //if ((double)max_m / mem_spec[t.m_ids]>0.8) {
             //if (inter_limit.size()>700) {
             //if (t.m_ids >= 730 && t.m_ids <=740 ){
                 ++counter;
+                /*
                 cout << endl << "machine " << t.m_ids << " : " << t.disk << "-" << disk_spec[t.m_ids] 
                     << "\tcpu: " << max_c / cpu_spec[t.m_ids] << " " << cpu_over << endl
                     << "\tmem: " << max_m / mem_spec[t.m_ids] 
                     << "\tsize: " << t.ins_ids.size() 
                     << "\tinter limit: " << inter_limit.size() << endl;
                     //for (auto ins : t.ins_ids) cout << instance_apps[ins] << " ";
-                    //cout << endl;
+                    //cout << endl;*/
+                
             }
             //*/
         }
         cout << endl << "machines in cond: " << counter;
         cout << endl << endl << "machines_num :" << running.size() << " u_score:" << u_score
-            << " delta_score:" << u_score / time_len << " min_score:" << min_machine_score << endl
+            << " delta_score:" << ave_score() << " min_score:" << min_machine_score << endl
             << " max_cpu:" << max_cpu/cpu_limit << " all_cpu:" << all_cpu/time_len/cpu_limit 
             << " max_mem:" << max_mem/mem_limit << " all_mem:" << all_mem/time_len/mem_limit
-            << " all_disk:" << all_disk/disk_limit << " overload_num:" << overload_num << endl;
+            << " all_disk:" << all_disk << " " << disk_limit << " overload_num:" << overload_num << endl;
         if ( instance_num < 68219 ) {
             cout << moving_machine_id << " " << moving_ins_id << " " << instance_apps[moving_ins_id] << " " << ins_pos[moving_ins_id] << endl;
             m_ins[moving_machine_id].print();
@@ -469,13 +497,13 @@
     }
     
     double Code:: ave_score() {
+        //u_score = recalculate_score();
         return u_score / time_len;
     }
     
-    
     double Code:: recalculate_score() {
         u_score = 0;
-        for(auto mch:m_ins) u_score+= mch.score();
+        for(auto mch:m_ins) u_score+= mch.compute_score();
         return u_score;
     }
     

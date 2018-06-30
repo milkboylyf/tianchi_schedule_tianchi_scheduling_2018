@@ -16,7 +16,7 @@ int main() {
     process_data();
     //check_output_file("../../submit20180629215200.csv");
     //check_output_file("../../submit20180626111523.csv");
-    simulated_annealing (0);
+    simulated_annealing (20);
     /*
     DP dp(machine_resources_num);
     dp.init();
