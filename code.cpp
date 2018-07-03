@@ -155,7 +155,7 @@
     void Machine::print() {
         cout << disk << " " << P << " " << M << " " << PM << " " << m_ids << endl;
         for (auto t: ins_ids ) {
-            cout << instance_apps[t] << " ";
+            cout << t << ":" << instance_apps[t] << " ";
         }
         cout << endl;
     }
@@ -211,7 +211,7 @@
             //m_ins[ct].set_constant(index[i]);
             running.insert(ct);
             ins_pos[index[i]] = ct++;
-            ins_remain[app_apply[instance_apps[index[i]]]]--;
+            ins_remain[disk_index[app_apply[instance_apps[index[i]]]]]--;
         }
         
         //放置disk=167的实例，每个服务器放俩，用于将一些1024的服务器填满 
@@ -230,7 +230,7 @@
                 std::cout<< index[i]<<" " <<tmp_m<<std::endl;
             running.insert(tmp_m);
             ins_pos[index[i]] = tmp_m;
-            ins_remain[app_apply[instance_apps[index[i]]]]--;
+            ins_remain[disk_index[app_apply[instance_apps[index[i]]]]]--;
         }
         
         //按等级放置实例，越大的等级，服务器规格越大 
@@ -256,7 +256,7 @@
                     std::cout<< i<<" " <<tmp_m<<std::endl;
                 running.insert(tmp_m);
                 ins_pos[index[i]] = tmp_m;
-                ins_remain[app_apply[instance_apps[index[i]]]]--;
+                ins_remain[disk_index[app_apply[instance_apps[index[i]]]]]--;
             }
         }
             
@@ -453,6 +453,7 @@
             
             //if (t.disk-disk_spec[t.m_ids]<=-60) {
             if ((double)max_c / cpu_spec[t.m_ids]>0.5) {
+            //if (t.compute_score() > 100) {
             //if ((double)max_m / mem_spec[t.m_ids]>0.8) {
             //if (inter_limit.size()>700) {
             //if (t.m_ids >= 730 && t.m_ids <=740 ){
@@ -463,8 +464,9 @@
                     << "\tmem: " << max_m / mem_spec[t.m_ids] 
                     << "\tsize: " << t.ins_ids.size() 
                     << "\tinter limit: " << inter_limit.size() << endl;
-                    //for (auto ins : t.ins_ids) cout << instance_apps[ins] << " ";
-                    //cout << endl;*/
+                    for (auto ins : t.ins_ids) cout << instance_apps[ins] << " ";
+                    cout << endl;
+                    */
                 
             }
             //*/

@@ -12,31 +12,33 @@ void simulated_annealing (double end_time) {
     
 	double starttime = (double)clock()/CLOCKS_PER_SEC  , endtime1 = 0.3, endtime2 = 0 ;
 	
-	Code a(machine_resources_num);
+	//Code a(machine_resources_num);
+	MergeWorker a(machine_resources_num);
 	
 	//生成初始解，当前算法核心2333 
 	a.init();                                     
 	a.show_status();
 	
-	//退火现在一点卵用没有 
-	double score = a.ave_score(), temper = 1e-3;
+	//有用了 
+	double score = a.ave_score(), temper = 1000000000, min_score = score;
 	int counter = 0, failed_times= 0, change_times = 0;
 	disk_spec[1] = 10000; 
-	while ((double)clock()/CLOCKS_PER_SEC   - starttime < end_time ) {             
+	while ((double)clock()/CLOCKS_PER_SEC   - starttime < 10 ) {             
         int tmp_i = rand()%instance_deploy_num+1;
         if (a.exchange()) {
                 double new_score = a.ave_score();
                 if (judge(score,new_score,temper)) {
                     score = new_score;
                     a.accept();
+                    if (min_score>score) min_score = score;
                 }
                 else a.recover();
                 if(counter%100==0) {
-                    cout << "temper:" << temper << " change times:" << change_times << "failed times:" << failed_times << " "; 
                     a.show_status();
+                    cout << "min_score: " << min_score << " temper: " << temper << " change times: " << change_times << " failed times: " << failed_times << " "; 
                 }
                 change_times++;
-                temper*=0.999999;
+                temper*=0.99999;
         }
         else {
             a.recover();
@@ -45,9 +47,12 @@ void simulated_annealing (double end_time) {
         }
         counter++;
 	}
-	
-	
-    a.show_status();
+	for (int i=0;i<200;i++) {
+	    a.merge();
+	    if (i%10==0) {
+            a.show_status();
+        }
+    }
 	//输出当前各服务器的disk状态 
 	map<int,int> disk_space; 
 	int space_remain = 0;

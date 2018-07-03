@@ -49,6 +49,7 @@ void check_output(const map<int, int>& output) {
         machine_alloc[it->second].push_back(it->first);
     }
 
+    double score = 0;
     // check cpu limit
     bool flag = true, check_result = true;
     for(auto it = machine_alloc.begin(); it != machine_alloc.end(); it++) {
@@ -67,6 +68,7 @@ void check_output(const map<int, int>& output) {
             if(tmp_sum[i] > cpu_spec[it->first] + EPS) {
                 check_result = flag = false;
             }
+            score += cst::a*exp( max(0.0,(double)tmp_sum[i]/cpu_spec[it->first] - cst::b )) - 9 ;
         }
     }
     check_log(flag, "cpu limit");
@@ -173,6 +175,7 @@ void check_output(const map<int, int>& output) {
     }
 
     // compute score
+    cout << "total_score: " << score/time_len <<endl;
 }
 
 void check_output_file(string output_file_name) {

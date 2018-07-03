@@ -1,8 +1,6 @@
 #include "global.h"
 #include "read.h"
 #include "code.h"
-#include "dp_lst.h"
-#include "deployer.h"
 #include "misc.h"
 #include "simulated_annealing.h"
 #include <iostream>
@@ -16,7 +14,7 @@ int main() {
     process_data();
     //check_output_file("../../submit20180629215200.csv");
     //check_output_file("../../submit20180626111523.csv");
-    simulated_annealing (20);
+    simulated_annealing (10);
     /*
     DP dp(machine_resources_num);
     dp.init();

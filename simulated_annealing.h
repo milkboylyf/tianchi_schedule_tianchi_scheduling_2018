@@ -6,6 +6,7 @@
 #include "global.h"
 #include "code.h"
 #include "time.h"
+#include "merge.h"
 
 bool judge( double score, double new_score );
 
