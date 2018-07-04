@@ -359,7 +359,7 @@
             u_score += m_ins[ins_pos[tmp_i]].compute_score();
             if (m_ins[ins_pos[tmp_i]].empty()) running.erase(ins_pos[tmp_i]);
         }
-        else ins_remain[app_apply[instance_apps[ins]]]--;
+        else ins_remain[disk_index[app_apply[instance_apps[ins]]]]--;
         
         moving_ins_id = tmp_i;
         moving_machine_id = ins_pos[tmp_i];
@@ -398,7 +398,7 @@
                 u_score += m_ins[moving_machine_id].compute_score();
                 running.insert(moving_machine_id);
             }
-            else ins_remain[app_apply[instance_apps[moving_ins_id]]]++;
+            else ins_remain[disk_index[app_apply[instance_apps[moving_ins_id]]]]++;
             //cerr << "end recover:" << m_ins[ins_pos[moving_ins_id]].ins_ids.size() << " --- " << m_ins[moving_machine_id].ins_ids.size()<<endl;
             ins_pos[moving_ins_id]=moving_machine_id;
         }
@@ -476,7 +476,7 @@
             << " delta_score:" << ave_score() << " min_score:" << min_machine_score << endl
             << " max_cpu:" << max_cpu/cpu_limit << " all_cpu:" << all_cpu/time_len/cpu_limit 
             << " max_mem:" << max_mem/mem_limit << " all_mem:" << all_mem/time_len/mem_limit
-            << " all_disk:" << all_disk << " " << disk_limit << " overload_num:" << overload_num << endl;
+            << " all_disk:" << (double)all_disk/disk_limit << " overload_num:" << overload_num << endl;
         if ( instance_num < 68219 ) {
             cout << moving_machine_id << " " << moving_ins_id << " " << instance_apps[moving_ins_id] << " " << ins_pos[moving_ins_id] << endl;
             m_ins[moving_machine_id].print();

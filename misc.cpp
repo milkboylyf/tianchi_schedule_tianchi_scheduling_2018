@@ -144,6 +144,8 @@ void check_output(const map<int, int>& output) {
             app_count[app]++;
         }
         for(auto it2 = app_count.begin(); it2 != app_count.end(); it2++) {
+            //if (it2->first == 
+            //cout << "%%%%" << it2->first <<endl;
             for(const pair<int, int>& inter: app_inter_list[it2->first]) {
                 if(app_count.count(inter.first) &&  app_count[inter.first] > inter.second ) {
                     check_result = flag = false;

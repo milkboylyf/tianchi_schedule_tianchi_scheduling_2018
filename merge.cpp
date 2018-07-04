@@ -106,7 +106,5 @@ void MergeWorker::merge() {
     }
     while ( m_b == m_a || m_ins[m_b].empty());
     merge_machine_2( m_ins[m_a], m_ins[m_b] ); 
-    if (running.size()==5507) 
-        scanf("%*d");
 } 
     
