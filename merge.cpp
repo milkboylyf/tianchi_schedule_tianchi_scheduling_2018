@@ -6,7 +6,7 @@ MergeWorker::MergeWorker(int _len): Code(_len), m1(0), m2(0) {}
 void MergeWorker::dfs_m_divide(int x) {
     //cout << x << " " << reserved_ins[x] << endl;
     search_times ++;
-    if ( min_cpu_score <= 196 || search_times > 1000000) return ;
+    if ( min_cpu_score <= 196 || search_times > 100000) return ;
     if ( x >= reserved_ins.size() ) {
         /*
         cout << m1.ins_ids.size() <<endl;
@@ -107,4 +107,34 @@ void MergeWorker::merge() {
     while ( m_b == m_a || m_ins[m_b].empty());
     merge_machine_2( m_ins[m_a], m_ins[m_b] ); 
 } 
+
+bool MergeWorker::make_integer_result( int i_score ) {
+    //if (ave_score()>5506) return false;
+    int last_score = (int)(ave_score()+1e-4);
+    //cout << last_score <<endl;
+    if (i_score >6000 || i_score < last_score ) return false;
+    
+    int move_times = 10000;
+    while ( move_times-- ) {
+        accept();
+        int ins_a, pos_a, app_a;
+        do {
+            ins_a = rand()%instance_deploy_num+1;
+            pos_a = ins_pos[ins_a];
+            app_a = instance_apps[ins_a];
+        }
+        while ( 0 ) ;
+        int m_b , times = 0;
+        do {
+            m_b = rand()%machine_resources_num+1;
+            times ++;
+        }
+        while ( ( m_b > 6000 - last_score || m_b <= 6000 - i_score || pos_a==m_b ) && times <200 );
+        if (times ==200) continue;
+        if (move( ins_a , m_b ) && m_ins[m_b].score > 98  ) {
+            recover();
+        }
+    }
+    return true;
+}
     

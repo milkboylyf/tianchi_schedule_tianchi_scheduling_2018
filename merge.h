@@ -29,6 +29,8 @@ struct MergeWorker :Code {
     
     void merge() ;
     
+    bool make_integer_result( int i_score ) ;
+    
 };
 
 

@@ -22,8 +22,8 @@ void simulated_annealing (double end_time) {
 	//有用了 
 	double score = a.ave_score(), temper = 1000000000, min_score = score;
 	int counter = 0, failed_times= 0, change_times = 0;
-	disk_spec[1] = 10000; 
-	while ((double)clock()/CLOCKS_PER_SEC   - starttime < 0 ) {             
+	//disk_spec[1] = 10000; 
+	while ((double)clock()/CLOCKS_PER_SEC   - starttime < 8 ) {             
         int tmp_i = rand()%instance_deploy_num+1;
         if (a.exchange()) {
                 double new_score = a.ave_score();
@@ -47,12 +47,17 @@ void simulated_annealing (double end_time) {
         }
         counter++;
 	}
-	for (int i=0;i<500;i++) {
+	for (int i=0;i<150;i++) {
 	    a.merge();
 	    if (i%10==0) {
             a.show_status();
         }
     }
+    
+    //a.make_integer_result(5600);
+    
+    a.show_status();
+    
 	//输出当前各服务器的disk状态 
 	map<int,int> disk_space; 
 	int space_remain = 0;

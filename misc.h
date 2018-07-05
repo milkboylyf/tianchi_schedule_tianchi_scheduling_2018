@@ -1,3 +1,6 @@
+#ifndef MISC_FUNC
+#define MISC_FUNC 
+
 #include <iostream>
 #include <map>
 #include <string>
@@ -17,3 +20,5 @@ void check_output(const map<int, int>& output);
 
 
 void check_output_file(string output_file_name) ;
+
+#endif

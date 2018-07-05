@@ -192,3 +192,4 @@ void check_output_file(string output_file_name) {
     c.show_status();
     c.show_extra_info();
 }
+
