@@ -5,31 +5,199 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <set>
 #include <cstring>
+#include <utility>
+#include <algorithm>
+#include <queue>
+
+#define NIN(k, m) (m.find(k) == m.end())
 
 using namespace std;
 using namespace global;
 
-// map<instance line number, machine id/line number>
-map<int, int> process_output(const map<int, int>& output) {
-    map<int, int> result;
-    auto it = output.begin();
-    while(it != output.end()) {
-        int real_id = instance_ids[it->first];
-        result[real_id] = it->second;
-        it++;
+vector<int> ins_machine;
+map<int, set<int> > machine_state, target_machine_state;
+map<int, int> alloc_machine_app_count;
+map<int, vector<int> > alloc_machine_cpu, alloc_machine_mem;
+map<int, int> alloc_machine_p, alloc_machine_m, alloc_machine_pm, alloc_machine_disk;
+
+vector<pair<int, int> > pair_output;
+
+const int MAX_POOL_SIZE = 1e6;
+
+int free_machines[MAX_POOL_SIZE];
+
+int machines_queue[MAX_POOL_SIZE];
+int q_back = 0, q_front = 0;
+
+bool check_move(int ins_line, int machine_id) {
+    int app = instance_apps[ins_line];
+    if(NIN(machine_id, alloc_machine_cpu)) {
+        alloc_machine_cpu[machine_id] = vector<int>(time_len, cpu_spec[machine_id]);
+        alloc_machine_mem[machine_id] = vector<int>(time_len, mem_spec[machine_id]);
+        alloc_machine_p[machine_id] = p_lim[machine_id];
+        alloc_machine_m[machine_id] = m_lim[machine_id];
+        alloc_machine_pm[machine_id] = pm_lim[machine_id];
+        alloc_machine_disk[machine_id] = disk_spec[machine_id];
     }
-    return result;
+    vector<int>& machine_cpu = alloc_machine_cpu[machine_id];
+    vector<int>& machine_mem = alloc_machine_mem[machine_id];
+    for(int i = 0; i < time_len; i++) {
+        if(machine_cpu[i] < app_cpu_line[app][i]) return false;
+        if(machine_mem[i] < app_mem_line[app][i]) return false;
+    }
+    if(alloc_machine_p[machine_id] < app_p[app]) return false;
+    if(alloc_machine_m[machine_id] < app_m[app]) return false;
+    if(alloc_machine_pm[machine_id] < app_pm[app]) return false;
+    if(alloc_machine_disk[machine_id] < app_apply[app]) return false;
+    return true;
+}
+
+void remove_ins(int ins_line, int machine_id) {
+    int app = instance_apps[ins_line];
+    ins_machine[ins_line] = -1;
+    alloc_machine_app_count[app]--;
+    machine_state[machine_id].erase(ins_line);
+    assert(not NIN(machine_id, alloc_machine_cpu));
+    vector<int>& machine_cpu = alloc_machine_cpu[machine_id];
+    vector<int>& machine_mem = alloc_machine_mem[machine_id];
+    for(int i = 0; i < time_len; i++) {
+        machine_cpu[i] += app_cpu_line[app][i];
+        machine_mem[i] += app_mem_line[app][i];
+    }
+    alloc_machine_p[machine_id] += app_p[app];
+    alloc_machine_m[machine_id] += app_m[app];
+    alloc_machine_pm[machine_id] += app_pm[app];
+    alloc_machine_disk[machine_id] += app_apply[app];
+}
+
+void put_ins(int ins_line, int machine_id, bool write=true) {
+    if(write) pair_output.push_back(make_pair(ins_line, machine_id));
+    machine_state[machine_id].insert(ins_line);
+    int app = instance_apps[ins_line];
+    ins_machine[ins_line] = machine_id;
+    alloc_machine_app_count[app]++;
+    if(NIN(machine_id, alloc_machine_cpu)) {
+        alloc_machine_cpu[machine_id] = vector<int>(time_len, cpu_spec[machine_id]);
+        alloc_machine_mem[machine_id] = vector<int>(time_len, mem_spec[machine_id]);
+        alloc_machine_p[machine_id] = p_lim[machine_id];
+        alloc_machine_m[machine_id] = m_lim[machine_id];
+        alloc_machine_pm[machine_id] = pm_lim[machine_id];
+        alloc_machine_disk[machine_id] = disk_spec[machine_id];
+    }
+    vector<int>& machine_cpu = alloc_machine_cpu[machine_id];
+    vector<int>& machine_mem = alloc_machine_mem[machine_id];
+    for(int i = 0; i < time_len; i++) {
+        machine_cpu[i] -= app_cpu_line[app][i];
+        machine_mem[i] -= app_mem_line[app][i];
+    }
+    alloc_machine_p[machine_id] -= app_p[app];
+    alloc_machine_m[machine_id] -= app_m[app];
+    alloc_machine_pm[machine_id] -= app_pm[app];
+    alloc_machine_disk[machine_id] -= app_apply[app];
+}
+
+bool tmp_alloc(int ins) {
+    int tmp_machine = -1;
+    for(int i = 1; i <= free_machines[0]; i++) {
+        if(check_move(ins, free_machines[i])) {
+            tmp_machine = free_machines[i];
+        }
+    }
+    if(tmp_machine == -1) {
+        for(int i = q_back - 1; i > q_front; i--) {
+            if(check_move(ins, machines_queue[i])) {
+                tmp_machine = machines_queue[i];
+            }
+        }
+    }
+    if(tmp_machine == -1) {
+        cerr << "tmp_alloc free machine not found" << endl;
+        exit(0);
+    }
+    put_ins(ins, tmp_machine);
+    //cerr << "put 1" << endl;
+    return true;
+}
+
+bool fill_machine(int machine_id) {
+    queue<int> to_move_out, to_move_in;
+    for(int ins: machine_state[machine_id]) {
+        if(NIN(ins, target_machine_state[machine_id])) {
+            to_move_out.push(ins);
+        }
+    }
+    for(int ins: target_machine_state[machine_id]) {
+        if(NIN(ins, machine_state[machine_id])) {
+            to_move_in.push(ins);
+        }
+    }
+    while(not to_move_out.empty()) {
+        remove_ins(to_move_out.front(), machine_id);
+        if(not tmp_alloc(to_move_out.front())) {
+            cerr << "tmp_alloc failed" << endl;
+            exit(0);
+        }
+        to_move_out.pop();
+    }
+    while(not to_move_in.empty()) {
+        if(ins_machine[to_move_in.front()] != -1) 
+            remove_ins(to_move_in.front(), ins_machine[to_move_in.front()]);
+        put_ins(to_move_in.front(), machine_id);
+        to_move_in.pop();
+    }
+    return true;
+}
+
+// map<instance line number, machine id/line number>
+vector<pair<int, int> > process_output(const map<int, int>& output) {
+    for(auto it: output) {
+        target_machine_state[it.second].insert(it.first);
+    }
+    cerr << "used machine num " << target_machine_state.size() << endl;
+    ins_machine = instance_machines;
+    for(int i = 1; i < int(instance_ids.size()); i++) {
+        if(instance_machines[i] == -1) {
+
+        }
+        else {
+            put_ins(i, instance_machines[i], false);
+        }
+    }
+    for(int i = 1; i < int(machine_ids.size()); i++) {
+        if(NIN(i, target_machine_state) && NIN(i, machine_state)) {
+            free_machines[++free_machines[0]] = i;
+        }
+    }
+    cerr << "free machine num " << free_machines[0] << endl;
+    for(auto it: target_machine_state) {
+        if(machine_state[it.first] == it.second) {
+
+        }
+        else {
+            machines_queue[q_back++] = it.first;
+        }
+    }
+
+    while(q_back - q_front > 0) {
+        if(not fill_machine(machines_queue[q_front])) {
+            cerr << "fill_machine failed" << endl;
+            exit(0);
+        }
+        q_front++;
+        cerr << "filled machine " << q_front << " " << q_back - q_front << " left" << endl;
+    }
+
+    return pair_output;
 }
 
 // map<instance id, machine id>
-void write_output(const map<int, int>& output, string file_name) {
+void write_output(const vector<pair<int, int> >& output, string file_name) {
     ofstream f;
     f.open (file_name, ios::trunc);
-    auto it = output.begin();
-    while(it != output.end()) {
-        f << "inst_" << it->first << ", machine_" << it->second << endl;
-        it++;
+    for(auto& p: output) {
+        f << "inst_" << instance_ids[p.first] << ", machine_" << p.second << endl;
     }
     f.close();
 }
