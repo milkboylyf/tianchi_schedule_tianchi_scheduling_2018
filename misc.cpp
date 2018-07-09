@@ -150,6 +150,56 @@ bool fill_machine(int machine_id) {
     return true;
 }
 
+
+vector<pair<int, int> > process_output2(map<int, int>& output) {
+    Code c(machine_resources_num), st(machine_resources_num);
+    vector<pair<int,int> > answer; 
+    //bool Machine::check_all_inter()
+    int v[machine_resources_num+2] ={};
+    for (int i=1;i<=instance_deploy_num;i++) {
+        if (instance_machines[i]!=-1)
+        {
+            assert(c.move(i,instance_machines[i],1));
+        }
+        ;
+        st.move(i,output[i]);
+    }
+    for (int i=1;i<=machine_resources_num ;i++)
+        v[i] = !c.m_ins[i].check_all_inter();
+    for (int i=machine_resources_num,j ;i>0;i--) {
+        set<int> tmp = c.m_ins[i].ins_ids;
+        for (auto t :tmp ) {
+            if (!st.m_ins[i].ins_ids.count(t)) {
+                for (j=1;j<i;j++) 
+                    if (v[j]==0&&c.move(t,j))
+                        break;
+                assert(i-j);
+                answer.push_back(make_pair(t,j));
+                //cout << t << " " << j << endl;
+            }
+        }
+        v[i] = 0;
+        for (auto t : st.m_ins[i].ins_ids ) 
+            if (instance_machines[t]!=-1&&!tmp.count(t))
+        {
+            assert(c.move(t,i));
+            answer.push_back(make_pair(t,i));
+                //cout << t << " " << i << endl;
+        }
+    }
+    for (int i=machine_resources_num,j ;i>0;i--) {
+        set<int> tmp = c.m_ins[i].ins_ids;
+        for (auto t : st.m_ins[i].ins_ids ) 
+            if (!tmp.count(t))
+        {
+            assert(c.move(t,i));
+            answer.push_back(make_pair(t,i));
+            cout << t << " " << i << endl;
+        }
+    }
+    return answer;
+}
+
 // map<instance line number, machine id/line number>
 vector<pair<int, int> > process_output(const map<int, int>& output) {
     for(auto it: output) {
@@ -197,7 +247,7 @@ void write_output(const vector<pair<int, int> >& output, string file_name) {
     ofstream f;
     f.open (file_name, ios::trunc);
     for(auto& p: output) {
-        f << "inst_" << instance_ids[p.first] << ", machine_" << p.second << endl;
+        f << "inst_" << instance_ids[p.first] << ",machine_" << p.second << endl;
     }
     f.close();
 }

@@ -108,7 +108,7 @@ void read_data(
 
 void process_data() {
     int flag = 0; 
-    for (auto lines : global:: app_cpu_line ) {
+    for (auto &lines : global:: app_cpu_line ) {
         vector<int> tmp ;
         global:: app_ins_num.push_back(0);
         if (flag == 0 ) {flag = 1;continue;}
@@ -123,7 +123,7 @@ void process_data() {
         //global:: app_cpu_line.push_back(tmp);
     }
     flag = 0; 
-    for (auto lines : global:: app_mem_line ) {
+    for (auto &lines : global:: app_mem_line ) {
         vector<int> tmp ;
         if (flag == 0 ) {flag = 1;continue;}
         //cout<< lines.size() << endl;

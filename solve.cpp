@@ -27,6 +27,6 @@ int main() {
     global:: final_output = dp.ins_pos;
     //*/
     check_output(global:: final_output);
-    write_output(process_output(global:: final_output), "../submit.csv");
+    write_output(process_output2(global:: final_output), "../submit.csv");
     return 0;
 }

@@ -41,11 +41,13 @@ struct Machine {
     
     void set_constant( int ins );
     
-    bool spec_eval( int ins );
+    bool spec_eval( int ins , int no_inter=0 );
     
-    bool inter_eval( int ins_app );
+    bool inter_eval( int ins_app, int no_inter= 0  );
     
-    bool add_instance(int ins);
+    bool check_all_inter();
+    
+    bool add_instance(int ins, int no_inter= 0 );
     
     bool del_instance( int ins );
     
@@ -81,7 +83,7 @@ struct Code {
     
     bool move_ins( int ins );
     
-    bool move(int ins, int tmp_m);
+    bool move(int ins, int tmp_m, int no_inter=0);
     
     bool add_machine();
     

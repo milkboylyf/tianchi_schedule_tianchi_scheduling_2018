@@ -62,7 +62,7 @@
     }
     
     //各项属性不能超分 
-    bool Machine::spec_eval( int ins_app, int no_inter ) {
+    bool Machine::spec_eval( int ins_app ) {
          
         if ( disk_spec[m_ids] < disk + app_apply[ins_app]           
             || p_lim[m_ids] < P + app_p[ins_app]
@@ -70,8 +70,8 @@
             || pm_lim[m_ids] < PM + app_pm[ins_app] ) 
             return false;
         for (int i=0;i<time_len;i++) 
-            if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i] +1*(!no_inter)
-                || mem_spec[m_ids] < mem[i] + app_mem_line[ins_app][i] +1*(!no_inter) ) {
+            if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i] 
+                || mem_spec[m_ids]+1e-7 < mem[i] + app_mem_line[ins_app][i] ) {
                     //cout << "CPU & MEM" <<endl;
             return false;
         }
@@ -79,44 +79,34 @@
     }
     
     //查找干扰和反向干扰 
-    bool Machine::inter_eval( int ins_app, int no_inter  ) {
+    bool Machine::inter_eval( int ins_app) {
         if (app_inter_set.count(ins_app))                           
         for (auto &t:app_inter_set[ins_app])
             if ( apps.count(t.first) && (apps.count(ins_app) ? t.second<=apps[ins_app] : !t.second ) ) {
-                //if ( no_inter) 
-                //    cout << "INTERFERENCE " << t.first << " " << ins_app << " " << t.second << endl;
+                if ( no_inter) 
+                    cout << "INTERFERENCE" << t.first << " " << ins_app << endl;
                 return false;
         }
         if (app_rvs_inter_set.count(ins_app)) 
         for (auto &t:app_rvs_inter_set[ins_app])
             if ( apps.count(t.first) && t.second<apps[t.first] ) {
-                //if ( no_inter )
-                //    cout << "INTERFERENCE2 " << t.first << " " << ins_app << " " << t.second << endl;
+                if ( no_inter )
+                    cout << "INTERFERENCE" << t.first << " " << ins_app << endl;
                 return false;
         }
         return true;
     }
     
-    bool Machine::check_all_inter() {
-        for (auto it : apps ) {                        
-            for (auto &t:app_inter_set[it.first]) if (apps.count(t.first) && t.second<it.second) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    bool Machine::add_instance( int ins, int no_inter ) {
+    bool Machine::add_instance( int ins) {
         
         
         int ins_app = instance_apps[ins];
         
         if (constant.count(ins)) return false;                      //静态实例，不能移动 
          
-        if (!spec_eval(ins_app,no_inter)) return false;                      //各项属性不能超分 
+        if (!spec_eval(ins_app)) return false;                      //各项属性不能超分 
         
         if (!inter_eval(ins_app,no_inter )) {
-            if (!no_inter)
                 return false;                     //查找干扰和反向干扰 
         }    
         
@@ -282,8 +272,7 @@
         }
         //cout << "score:" << u_score << endl; 
         
-        if (move_last_instance()) cout << " exchange complete. "<< endl;
-        cout << "End initialization." <<endl;
+        if (move_last_instance()) cout << " exchange complete. ";
     }
     
     //移动一个实例至另一个machine，如果不能移动，则寻找二次交换 
@@ -351,18 +340,16 @@
     }
     
     //用于移动实例ins至服务器m，记录移动记录 
-    bool Code::move(int ins, int tmp_m, int no_inter) {
+    bool Code::move(int ins, int tmp_m) {
         
         int tmp_i = ins, flag = 0;
-        
-        assert( ins_pos[ins]!=tmp_m && tmp_m!=0 && tmp_m <=len );
         
         //int tmp_m= 0;
         //for (int times = 0;times < 10;times ++ ) {
         //    tmp_m = rand()%len+1;
     
         u_score -= m_ins[tmp_m].compute_score();
-        if ( tmp_m == ins_pos[tmp_i] || !m_ins[tmp_m].add_instance(tmp_i,no_inter) ) {
+        if ( tmp_m == ins_pos[tmp_i] || !m_ins[tmp_m].add_instance(tmp_i) ) {
             u_score += m_ins[tmp_m].compute_score();
             return false;
         }
@@ -370,7 +357,6 @@
         running.insert(tmp_m);
         
         if (ins_pos[tmp_i]) {
-            //assert(no_inter==0);
             u_score -= m_ins[ins_pos[tmp_i]].compute_score();
             bool del_successfully = m_ins[ins_pos[tmp_i]].del_instance(tmp_i);
             assert(del_successfully);
