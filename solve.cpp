@@ -6,11 +6,18 @@
 #include <iostream>
 
 int main() {
+    /*
     read_data(
             "../data_preliminary/scheduling_preliminary_instance_deploy_20180606.csv",
             "../data_preliminary/scheduling_preliminary_app_resources_20180606.csv",
             "../data_preliminary/scheduling_preliminary_machine_resources_20180606.csv",
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv");
+            */
+    read_data(
+            "../data_preliminary/scheduling_preliminary_b_instance_deploy_20180726.csv",
+            "../data_preliminary/scheduling_preliminary_b_app_resources_20180726.csv",
+            "../data_preliminary/scheduling_preliminary_b_machine_resources_20180726.csv",
+            "../data_preliminary/scheduling_preliminary_b_app_interference_20180726.csv");
     process_data();
     //check_output_file("../../submit20180629215200.csv");
     //check_output_file("../../submit20180626111523.csv");
@@ -27,6 +34,6 @@ int main() {
     global:: final_output = dp.ins_pos;
     //*/
     check_output(global:: final_output);
-    write_output(process_output2(global:: final_output), "../submit.csv");
+    write_output(process_output2(global:: final_output), "../submit_b.csv");
     return 0;
 }

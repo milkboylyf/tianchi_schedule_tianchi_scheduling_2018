@@ -23,9 +23,9 @@ void simulated_annealing (double end_time) {
 	double score = a.ave_score(), temper = 1000000000, min_score = score;
 	int counter = 0, failed_times= 0, change_times = 0;
 	//disk_spec[1] = 10000; 
-	while ((double)clock()/CLOCKS_PER_SEC   - starttime < 20 && a.ave_score() > 5507.179) {             
+	while ((double)clock()/CLOCKS_PER_SEC   - starttime < 600 && a.ave_score() > 5507.179) {             
         int tmp_i = rand()%instance_deploy_num+1;
-        if (a.exchange()) {
+        if (a.move_ins(tmp_i)) {
                 double new_score = a.ave_score();
                 if (judge(score,new_score,temper)) {
                     score = new_score;
@@ -47,7 +47,7 @@ void simulated_annealing (double end_time) {
         }
         counter++;
 	}
-	for (int i=0;i<200&&a.ave_score()>5506+1e-4;i++) {
+	for (int i=0;i<2000&&a.ave_score()>5506+1e-4;i++) {
 	    a.merge();
 	    if (i%10==0) {
             a.show_status();

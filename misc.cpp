@@ -168,6 +168,7 @@ vector<pair<int, int> > process_output2(map<int, int>& output) {
         v[i] = !c.m_ins[i].check_all_inter();
     for (int i=machine_resources_num,j ;i>0;i--) {
         set<int> tmp = c.m_ins[i].ins_ids;
+        //cout << i <<endl;
         for (auto t :tmp ) {
             if (!st.m_ins[i].ins_ids.count(t)) {
                 for (j=1;j<i;j++) 

@@ -25,6 +25,7 @@ extern vector<vector<double> > app_mem_line;
 extern vector<int> app_apply;
 extern vector<int> app_p, app_m, app_pm;
 
+
 extern int machine_resources_num;
 extern vector<int> machine_ids;
 extern vector<int> cpu_spec, mem_spec, disk_spec, p_lim, m_lim, pm_lim;
@@ -39,7 +40,9 @@ extern map<int,int> instance_index ;
 //extern vector<vector<int> > app_cpu_line;
 //extern vector<vector<int> > app_mem_line;
 extern vector<double> app_max_cpu;
-extern vector<double> app_ins_num;
+extern vector<int> app_ins_num;
+extern vector<double> sum_cpu_line;
+extern vector<double> sum_mem_line;
 
 extern map<int,set<pair<int,int> > > app_inter_set; 
 extern map<int,set<pair<int,int> > > app_rvs_inter_set;

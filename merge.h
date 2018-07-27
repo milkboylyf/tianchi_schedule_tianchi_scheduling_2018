@@ -5,6 +5,10 @@
 #include <algorithm>
 #include <string.h>
 
+struct RestrictedMachine: Machine {
+    
+}
+
 struct MergeWorker :Code {
     
     vector<int> reserved_ins;

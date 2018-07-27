@@ -28,6 +28,7 @@ void read_data(
     io::CSVReader<3> in0(instance_deploy_file);
     std::string string_buffers[10];
     int int_buffers[10];
+    double double_buffers[10];
     while(in0.read_row(string_buffers[0], string_buffers[1], string_buffers[2]))  {
         global:: instance_ids.push_back(stoi(string_buffers[0].substr(5)));
         global:: instance_apps.push_back(stoi(string_buffers[1].substr(4)));
@@ -45,11 +46,11 @@ void read_data(
     io::CSVReader<7> in1(app_resources_file);
     while(in1.read_row(
             string_buffers[0], string_buffers[1], string_buffers[2], 
-            int_buffers[3], int_buffers[4], int_buffers[5], int_buffers[6]))  {
+            double_buffers[3], int_buffers[4], int_buffers[5], int_buffers[6]))  {
         global:: app_ids.push_back(stoi(string_buffers[0].substr(4)));
         global:: app_cpu_line.push_back(parse_float_list(string_buffers[1]));
         global:: app_mem_line.push_back(parse_float_list(string_buffers[2]));
-        global:: app_apply.push_back(int_buffers[3]);
+        global:: app_apply.push_back((int)double_buffers[3]);
         global:: app_p.push_back(int_buffers[4]);
         global:: app_m.push_back(int_buffers[5]);
         global:: app_pm.push_back(int_buffers[6]);
@@ -107,6 +108,11 @@ void read_data(
 }
 
 void process_data() {
+    
+    for (int i =0 ;i<global::time_len; i++) {
+        global:: sum_cpu_line.push_back(0.0);
+        global:: sum_mem_line.push_back(0.0);
+    }
     int flag = 0; 
     for (auto &lines : global:: app_cpu_line ) {
         vector<int> tmp ;
@@ -115,9 +121,10 @@ void process_data() {
         //cout<< lines.size() << endl;
         assert( lines.size()== global:: time_len ) ;
         double tmp_max_cpu = 0;
-        for (auto t: lines) {
+        for (int t=0;t<global::time_len;t++) {
             //tmp.push_back(t*1000);
-            tmp_max_cpu = max(tmp_max_cpu,t);
+            tmp_max_cpu = max(tmp_max_cpu,lines[t]);
+            //global::sum_cpu_line[t] += lines[t];
         }
         global:: app_max_cpu.push_back(tmp_max_cpu);
         //global:: app_cpu_line.push_back(tmp);
@@ -128,7 +135,10 @@ void process_data() {
         if (flag == 0 ) {flag = 1;continue;}
         //cout<< lines.size() << endl;
         assert( lines.size()== global:: time_len ) ;
-        //for (auto t: lines) tmp.push_back(t*1000);
+        for (int t=0;t<global::time_len;t++) {
+            //tmp.push_back(t*1000);
+            //global::sum_mem_line[t] += lines[t];
+        }
         //global:: app_mem_line.push_back(tmp);
     }
     
@@ -139,6 +149,10 @@ void process_data() {
         global:: app_ins_num[global:: instance_apps[i]]++;
         double max_cpu =0;
         for (double t : global:: app_cpu_line[global:: instance_apps[i]]) max_cpu=max(max_cpu,t);
+        for (int t=0;t<global::time_len;t++) {
+            global::sum_cpu_line[t] += global::app_cpu_line[global:: instance_apps[i]][t];
+            global::sum_mem_line[t] += global::app_mem_line[global:: instance_apps[i]][t];
+        }
         
         //cout << max_cpu << "\t" << global:: app_apply[global:: instance_apps[i]]
         //    << "\t" << max_cpu/global:: app_apply[global:: instance_apps[i]] << endl;
@@ -150,6 +164,11 @@ void process_data() {
     }
     //cout << "ave_cpu_p_disk: "<< ave_cpu_p_disk/global:: instance_deploy_num << " num: " << counter << endl;
     counter = 0;
+    
+    for (int i=0;i<global::time_len;i++) cout << global::sum_cpu_line[i] << " " ;
+    cout << endl;
+    for (int i=0;i<global::time_len;i++) cout << global::sum_mem_line[i] << " " ;
+    cout << endl;
     
     
     for (int i =1; i<= global:: app_resources_num ;i ++ ) 

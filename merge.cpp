@@ -1,6 +1,5 @@
 #include "merge.h"
 
-
 MergeWorker::MergeWorker(int _len): Code(_len), m1(0), m2(0) {}
 
 void MergeWorker::dfs_m_divide(int x) {
@@ -43,7 +42,8 @@ void MergeWorker::merge_machine_2( Machine &machine_1 , Machine &machine_2 ) {
     reserved_ins.clear();
     m1.m_ids = machine_1.m_ids;
     m2.m_ids = machine_2.m_ids;
-    min_cpu_score = 1e7;
+    min_cpu_score = machine_1.compute_score() + machine_2.compute_score();
+    tmp_m_ins_ids = machine_1.ins_ids;
     
     //u_score -= machine_1.score;
     //u_score -= machine_2.score;
@@ -51,6 +51,8 @@ void MergeWorker::merge_machine_2( Machine &machine_1 , Machine &machine_2 ) {
     //machine_2.print();
     clear_machine(machine_1);
     clear_machine(machine_2);
+    machine_1.clear();
+    machine_2.clear();
     reserved_applys[reserved_ins.size()] = 0;
     for (int i=reserved_ins.size()-1;i>=0;i--) 
         reserved_applys[i] = reserved_applys[i+1]+reserved_ins[i];
@@ -59,6 +61,8 @@ void MergeWorker::merge_machine_2( Machine &machine_1 , Machine &machine_2 ) {
     apply1 = apply2 = 0;
     search_times = 0;
     dfs_m_divide(0);
+    
+    assert(min_cpu_score <100000);
     
     for (auto ins: reserved_ins ) if ( tmp_m_ins_ids.count(ins) ) {
         assert( move(ins,machine_1.m_ids) );

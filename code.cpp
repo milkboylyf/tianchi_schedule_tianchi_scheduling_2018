@@ -238,7 +238,7 @@
                 assert(tmp_m>0);
             }
             while ( (disk_spec[tmp_m]-m_ins[tmp_m].disk) % 10 == 0 
-                || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*2 > cpu_spec[tmp_m] )
+                || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.9 > cpu_spec[tmp_m] )
                 || !m_ins[tmp_m].add_instance(index[i]) );
             if (index[i]%1000==0)
                 std::cout<< index[i]<<" " <<tmp_m<<std::endl;
@@ -263,7 +263,7 @@
                         || ( index[i] < 20000 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +40 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -5 )
                         || ( index[i]>= 20000 && index[i] < 67600 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +60 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -15 )
                         //|| (m_ins[tmp_m].empty()==0 && m_ins[tmp_m].check_cpu_overload(index[i]) ) 
-                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*2.01 > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
+                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.9 > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
                         //|| (((double)cpu_spec[tmp_m]/2- m_ins[tmp_m].cpu[0])/(disk_spec[tmp_m] - m_ins[tmp_m].disk)*5< (double)app_cpu_line[instance_apps[index[i]]][0] /app_apply[instance_apps[index[i]]])
                         || !m_ins[tmp_m].add_instance(index[i]) );
                 if (i%1000==0)
@@ -324,15 +324,15 @@
             app_a = instance_apps[ins_a];
         }
         while ( m_ins[pos_a].score <= 98 ) ;
-        int ins_b , app_b , times = 0;
+        int ins_b , app_b , times = 0, pos_b ;
         do {
             ins_b = rand()%instance_deploy_num+1;
             app_b = instance_apps[ins_b];
+            pos_b = ins_pos[ins_b];
             times ++;
         }
-        while ( (app_a==app_b || app_apply[app_a] != app_apply[app_b] ) && times <200 );
+        while ( (pos_a==pos_b || app_apply[app_a] != app_apply[app_b] ) && times <200 );
         if (times ==200) return false;
-        int pos_b = ins_pos[ins_b];
         if (move( ins_a , 1 ) && move( ins_b , pos_a ) && move( ins_a , pos_b ) ) {
             //accept();
             return true;
@@ -342,9 +342,10 @@
     }
     
     bool Code::move_ins( int ins ) {
-        if (get_level(ins)==100) return 0;
+        //if (get_level(ins)==100) return 0;
         for (int i=0;i<10;i++) {
             int tmp_m = rand()%len+1;
+            while (ins_pos[ins]==tmp_m) tmp_m = rand()%len+1;
             if (move(ins,tmp_m)) return true; 
         }
         return false;
@@ -503,6 +504,7 @@
         }
     }
     
+    //打印各类硬盘剩余情况 
     void Code::show_extra_info () {
         
     	map<int,int> disk_space; 
