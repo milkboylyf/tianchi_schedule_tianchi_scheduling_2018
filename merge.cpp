@@ -22,7 +22,7 @@ void MergeWorker::dfs_m_divide(int x) {
         return ;
     }
     int ins_app = instance_apps[reserved_ins[x]];
-    int action = rand()%2, prob = 80, t = 0;
+    int action = rand()%2, prob = 120, t = 0;
     if (action==0) {
         if (m1.add_instance(reserved_ins[x])) {
             //m1.compute_score();
@@ -132,7 +132,24 @@ void MergeWorker::clear_machine( Machine &m ) {
         remove_ins(*m.ins_ids.begin());
     }
 }
+/*
+void merge_machine_g(
 
+void merge_g (MergeWorker &mw) {
+    int m_a, m_b , times = 0;
+    do {
+        m_a = rand()%machine_resources_num+1;
+        times ++;
+    }
+    while ( ((m_a <= 3000&&mw.m_ins[m_a].score <= 98) || (m_a > 3000 && mw.m_ins[m_a].score <=105)) && times <20000) ;
+    if (times >=20000) return;
+    do {
+        m_b = rand()%machine_resources_num+1;
+    }
+    while ( ((m_b <= 3000&&mw.m_ins[m_b].score >100) || (m_b > 3000 && mw.m_ins[m_b].score > 110)) || m_b == m_a || mw.m_ins[m_b].empty() );
+    merge_machine_2( mw.m_ins[m_a], mw.m_ins[m_b] );
+}
+*/
 
 void MergeWorker::merge() {
     accept();
@@ -141,12 +158,12 @@ void MergeWorker::merge() {
         m_a = rand()%machine_resources_num+1;
         times ++;
     }
-    while ( m_ins[m_a].score <= 98 && times <20000) ;
+    while ( ((m_a <= 3000&&m_ins[m_a].score <= 98) || (m_a > 3000 && m_ins[m_a].score <=100)) && times <20000) ;
     if (times >=20000) return;
     do {
         m_b = rand()%machine_resources_num+1;
     }
-    while ( m_ins[m_b].score > 1100 || m_b == m_a || m_ins[m_b].empty() );
+    while ( ((m_b <= 3000&&m_ins[m_b].score >1100) || (m_b > 3000 && m_ins[m_b].score > 100)) || m_b == m_a || m_ins[m_b].empty() );
     merge_machine_2( m_ins[m_a], m_ins[m_b] ); 
 } 
 

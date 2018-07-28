@@ -18,7 +18,7 @@ void simulated_annealing (double end_time) {
 	//*
 	map<int, int > ip;
 	
-	read_output_file("../submit_b_6618_4816.csv", ip );
+	read_output_file("../submit_b_6095_4816.csv", ip );
 	
 	a.restore_pos(ip);
 	
