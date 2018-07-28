@@ -42,6 +42,7 @@ extern map<int,int> instance_index ;
 extern vector<double> app_max_cpu;
 extern vector<int> app_ins_num;
 extern vector<double> sum_cpu_line;
+extern double sum_cpu;
 extern vector<double> sum_mem_line;
 
 extern map<int,set<pair<int,int> > > app_inter_set; 

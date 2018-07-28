@@ -102,6 +102,8 @@ struct Code {
     double recalculate_score() ;
     
     void show_extra_info () ;
+    
+    void restore_pos(map <int,int> &r_pos);
 };
 
 #endif

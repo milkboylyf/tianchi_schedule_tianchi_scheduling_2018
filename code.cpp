@@ -4,26 +4,28 @@
         int ins_app = instance_apps[ins];
         
         //超大（静态）实例
-        if ( app_apply[ins_app] > 600 ) return 100;                  
+        if ( app_apply[ins_app] > 500 ) return 100;                  
         if ( app_cpu_line[ins_app][0] >= 16 ) return 100;
         //if ( app_mem_line[ins_app][0] >= 144 ) return 100; 
         
         //特殊规格实例 
-        if ( app_apply[ins_app] ==167 ) return 90;
+        //if ( app_apply[ins_app] ==167 ) return 90;
         
         
-        if ( (app_apply[ins_app] /10)%2 ) return 4;
+        //if ( (app_apply[ins_app] /10)%2 ) return 4;
         
         //大实例 
         //if ( app_inter_counter[ins_app] >300 && self_inter_num[ins_app]==1 ) return 3;
-        if ( app_apply[ins_app] >= 500 ) return 3;
+        //if ( app_apply[ins_app] >= 500 ) return 3;
         if ( app_cpu_line[ins_app][0] >= 16 ) return 3;
         if ( app_mem_line[ins_app][0] >= 16 ) return 3; 
         
         //中实例 
-        if ( app_apply[ins_app] >= 300 ) return 2;
+        //if ( app_apply[ins_app] >= 300 ) return 2;
         if ( app_max_cpu[ins_app] >= 4 ) return 2;
         if ( app_mem_line[ins_app][0] >= 5.4 ) return 2; 
+        
+        if ( app_max_cpu[ins_app] >= 2 ) return 1;
         
         //小实例 
         return false;
@@ -137,7 +139,7 @@
     
     bool Machine::check_cpu_overload(int ins) {
         int ins_app = instance_apps[ins];
-        double overload = 0, threshod = 6;
+        double overload = 0, threshod = disk_spec[m_ids]>40?53:5;
         for (int i=0;i<time_len;i++) {
             double t = cpu[i] + app_cpu_line[ins_app][i];
             overload += cst::a*exp( max(0.0,t/cpu_spec[m_ids] - cst::b )) - 10 ;
@@ -263,7 +265,7 @@
                         || ( index[i] < 20000 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +40 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -5 )
                         || ( index[i]>= 20000 && index[i] < 67600 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +60 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -15 )
                         //|| (m_ins[tmp_m].empty()==0 && m_ins[tmp_m].check_cpu_overload(index[i]) ) 
-                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.9 > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
+                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.71 > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
                         //|| (((double)cpu_spec[tmp_m]/2- m_ins[tmp_m].cpu[0])/(disk_spec[tmp_m] - m_ins[tmp_m].disk)*5< (double)app_cpu_line[instance_apps[index[i]]][0] /app_apply[instance_apps[index[i]]])
                         || !m_ins[tmp_m].add_instance(index[i]) );
                 if (i%1000==0)
@@ -527,5 +529,12 @@
         u_score = 0;
         for(auto mch:m_ins) u_score+= mch.compute_score();
         return u_score;
+    }
+    
+    void Code::restore_pos( map <int,int> &r_pos) {
+        for (auto t:r_pos) {
+            assert(move(t.first,t.second));
+        }
+        recalculate_score();
     }
     

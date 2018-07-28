@@ -2,12 +2,18 @@
 #define MERGE_MC
 
 #include "code.h"
+#include "bestfit.h"
 #include <algorithm>
 #include <string.h>
 
 struct RestrictedMachine: Machine {
+    int in_mem_num, in_cpu_num;
     
-}
+    bool add_instance(int ins, int no_inter= 0 );
+    
+    bool del_instance( int ins );
+    
+};
 
 struct MergeWorker :Code {
     

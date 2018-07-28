@@ -22,19 +22,56 @@ void MergeWorker::dfs_m_divide(int x) {
         return ;
     }
     int ins_app = instance_apps[reserved_ins[x]];
-    if (m1.add_instance(reserved_ins[x])) {
-        apply1 += app_apply[ins_app];
-        dfs_m_divide(x+1);
-        apply1 -= app_apply[ins_app];
-        m1.del_instance(reserved_ins[x]) ;
+    int action = rand()%2, prob = 80, t = 0;
+    if (action==0) {
+        if (m1.add_instance(reserved_ins[x])) {
+            //m1.compute_score();
+            apply1 += app_apply[ins_app];
+            dfs_m_divide(x+1);
+            apply1 -= app_apply[ins_app];
+            m1.del_instance(reserved_ins[x]) ;
+            //m1.compute_score();
+        }
+        else t =1;
+        if ((t||rand()%200<prob)&& 
+            //(x||disk_spec[m1.m_ids]!=disk_spec[m2.m_ids])           //如果两个服务器相同，那么第一元素永远放在m1 
+            //    &&
+                m2.add_instance(reserved_ins[x])) { 
+            //m2.compute_score();
+            apply2 += app_apply[ins_app];
+            dfs_m_divide(x+1);
+            apply2 -= app_apply[ins_app];
+            m2.del_instance(reserved_ins[x]) ;
+            //m2.compute_score();
+        }
     }
-    if ((x||disk_spec[m1.m_ids]!=disk_spec[m2.m_ids])           //如果两个服务器相同，那么第一元素永远放在m1 
-            &&m2.add_instance(reserved_ins[x])) { 
-        apply2 += app_apply[ins_app];
-        dfs_m_divide(x+1);
-        apply2 -= app_apply[ins_app];
-        m2.del_instance(reserved_ins[x]) ;
+    else {
+        if (//(x||disk_spec[m1.m_ids]!=disk_spec[m2.m_ids])           //如果两个服务器相同，那么第一元素永远放在m1 
+            //    &&
+                m2.add_instance(reserved_ins[x])) { 
+            //m2.compute_score();
+            apply2 += app_apply[ins_app];
+            dfs_m_divide(x+1);
+            apply2 -= app_apply[ins_app];
+            m2.del_instance(reserved_ins[x]) ;
+            //m2.compute_score();
+        }
+        else t = 1;
+        if ((t||rand()%200<prob)&& 
+            m1.add_instance(reserved_ins[x])) {
+            //m1.compute_score();
+            apply1 += app_apply[ins_app];
+            dfs_m_divide(x+1);
+            apply1 -= app_apply[ins_app];
+            m1.del_instance(reserved_ins[x]) ;
+            //m1.compute_score();
+        }
     }
+        
+}
+
+inline bool ins_cmp( const int &a , const int &b ) {
+    return app_max_cpu[instance_apps[a]]<app_max_cpu[instance_apps[b]];
 }
 
 void MergeWorker::merge_machine_2( Machine &machine_1 , Machine &machine_2 ) {
@@ -53,6 +90,7 @@ void MergeWorker::merge_machine_2( Machine &machine_1 , Machine &machine_2 ) {
     clear_machine(machine_2);
     machine_1.clear();
     machine_2.clear();
+    sort(reserved_ins.begin(),reserved_ins.end(),ins_cmp);
     reserved_applys[reserved_ins.size()] = 0;
     for (int i=reserved_ins.size()-1;i>=0;i--) 
         reserved_applys[i] = reserved_applys[i+1]+reserved_ins[i];
@@ -108,7 +146,7 @@ void MergeWorker::merge() {
     do {
         m_b = rand()%machine_resources_num+1;
     }
-    while ( m_b == m_a || m_ins[m_b].empty());
+    while ( m_ins[m_b].score > 1100 || m_b == m_a || m_ins[m_b].empty() );
     merge_machine_2( m_ins[m_a], m_ins[m_b] ); 
 } 
 

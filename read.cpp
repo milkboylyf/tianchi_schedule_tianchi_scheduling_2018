@@ -1,7 +1,6 @@
 #include "csv.h"
 #include "global.h"
 #include "read.h"
-#include <iostream>
 
 using namespace std;
 
@@ -165,6 +164,8 @@ void process_data() {
     //cout << "ave_cpu_p_disk: "<< ave_cpu_p_disk/global:: instance_deploy_num << " num: " << counter << endl;
     counter = 0;
     
+    global::sum_cpu = 0;
+    for (int i=0;i<global::time_len;i++) global::sum_cpu+=global::sum_cpu_line[i];
     for (int i=0;i<global::time_len;i++) cout << global::sum_cpu_line[i] << " " ;
     cout << endl;
     for (int i=0;i<global::time_len;i++) cout << global::sum_mem_line[i] << " " ;
@@ -208,6 +209,7 @@ void process_data() {
             << "\t" << global:: app_apply[i] << "\t" << global:: app_inter_map[i][i] << endl;
             */
     }
+    //compute_cpu_sup();
 }
 
 void read_output_file( string output_file_name, map<int,int> &result) {
@@ -215,7 +217,54 @@ void read_output_file( string output_file_name, map<int,int> &result) {
     std::string string_buffers[10];
     int int_buffers[10];
     result.clear();
+    for (int i=1;i<=global::instance_deploy_num;i++) if (global::instance_machines[i]!=-1) {
+        result[i] = global::instance_machines[i];
+    }
     while(in0.read_row(string_buffers[0], string_buffers[1]))  {
         result[global:: instance_index[stoi(string_buffers[0].substr(5))]] = stoi(string_buffers[1].substr(8));
     }
+}
+
+using namespace global;
+double cpu_score_in_mnum ( int k ) {
+    int space = 3000*92+(k-3000)*32;
+    double score = 0;
+    for (int i=0;i<global::time_len;i++) {
+        double l= 0.5, r= sum_cpu_line[i]/space;
+        while (r-l>1e-6) {
+            double score_a = 0, score_b = 0, mid = (l+r)/2;
+            score_a = (exp(mid-0.5)*10-9)*(k-3000)+(exp((sum_cpu_line[i]-mid*32*(k-3000))/(3000*92)-0.5)*10-9)*3000;
+            mid+=1e-7;
+            score_b = (exp(mid-0.5)*10-9)*(k-3000)+(exp((sum_cpu_line[i]-mid*32*(k-3000))/(3000*92)-0.5)*10-9)*3000;
+            if (score_a>score_b) l= mid;
+            else r= mid;
+            //cout << mid << " $ " << score_a << " & " << score_b <<" " << (sum_cpu_line[i]-mid*32*(k-3000))/(3000*92) <<endl;
+        }
+        //cout << endl;
+        if (global::sum_cpu_line[i]/space<=0.5) score+= k;
+        else 
+        score += (exp(l-0.5)*10-9)*(k-3000)+(exp((sum_cpu_line[i]-l*32*(k-3000))/(3000*92)-0.5)*10-9)*3000;
+        //score += (exp(max(sum_cpu_line[i]/space-0.5,0.0))*10-9)*k;
+    }
+    //cout <<  space << " " << score << endl;
+    return score/time_len;
+}
+
+void compute_cpu_sup() {
+    int l = 3000, r = 6000;
+    for (int i=4500;i<=5500;i++) 
+         cout << i << ":" << cpu_score_in_mnum(i) <<endl;
+    /*
+    while ( r-l>2) {
+        int mid = (l+r)/2;
+        if (cpu_score_in_mnum(mid)>cpu_score_in_mnum(mid+1)) l = mid;
+        else r= mid+1;
+        cout << mid << "\t" << cpu_score_in_mnum(mid) << endl;
+    }
+    cout << "###############" << endl;
+    cout << l << ":" << cpu_score_in_mnum(l) <<endl
+         << r << ":" << cpu_score_in_mnum(r) <<endl;
+         */
+    //system("pause");
+    exit(0);
 }

@@ -33,6 +33,7 @@ map<int,int> instance_index ;
 vector<double> app_max_cpu = {-1};
 vector<int> app_ins_num ;
 vector<double> sum_cpu_line;
+double sum_cpu;
 vector<double> sum_mem_line;
 
 map<int,set<pair<int,int> > > app_inter_set;

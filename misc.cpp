@@ -253,6 +253,15 @@ void write_output(const vector<pair<int, int> >& output, string file_name) {
     f.close();
 }
 
+void write_output_origin(const map<int, int>& output, string file_name) {
+    ofstream f;
+    f.open (file_name, ios::trunc);
+    for(auto& p: output) {
+        f << "inst_" << instance_ids[p.first] << ",machine_" << p.second << endl;
+    }
+    f.close();
+}
+
 void check_log(bool res, string section) {
     if(res) cerr << section << " test passed" << endl;
     else cerr << section << " test failed ! <-----------------" << endl;
