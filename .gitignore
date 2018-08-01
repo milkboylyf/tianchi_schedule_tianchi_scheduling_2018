@@ -1,7 +1,6 @@
 bin/
 build/
-*.dev
 *.layout
 *.exe
 *.o
-submit.csv
+*.csv
