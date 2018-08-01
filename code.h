@@ -66,6 +66,7 @@ struct Code {
     
     double u_score;
     map<int,int> ins_pos;
+    int max_ins_pair;
     
     Code(int _len);
     

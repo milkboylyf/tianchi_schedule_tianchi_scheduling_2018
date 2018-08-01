@@ -7,20 +7,29 @@ bool judge( double score, double new_score ,double temper) {
     return false;
 }
 
+void run_thread( ParallelMergeWorker *mw ) {
+    mw->dfs_m_divide(0);
+}
+
 
 void simulated_annealing (double end_time) {
     
 	double starttime = (double)clock()/CLOCKS_PER_SEC  , endtime1 = 0.3, endtime2 = 0 ;
 	
-	//Code a(machine_resources_num);
-	MergeWorker a(machine_resources_num);
+	Code coder(machine_resources_num);
+	int workers_num = 1;
+	vector<ParallelMergeWorker*> workers;
+	for ( int i=0;i<workers_num;i++) workers.push_back(new ParallelMergeWorker(machine_resources_num));
+	//ParallelMergeWorker mw(machine_resources_num);
+	
+	//MergeWorker a(machine_resources_num);
 	
 	//*
 	map<int, int > ip;
 	
-	read_output_file("../submit_b_6095_4816.csv", ip );
+	read_output_file("../submit_b_605109_s.csv", ip );
 	
-	a.restore_pos(ip);
+	coder.restore_pos(ip);
 	
 	//生成初始解，当前算法核心2333 
 	/*/
@@ -56,10 +65,47 @@ void simulated_annealing (double end_time) {
         counter++;
 	}
 	//*/
-	for (int i=0;i<4000000&&a.ave_score()>5506+1e-4;i++) {
-	    a.merge();
+	
+	
+	
+	
+	for (int i=0;i<4000000&&coder.ave_score()>5506+1e-4;i++) {
+	    vector<int> merge_a, merge_b;
+	    set<int> moving_machines;
+	    for ( int j=0;j<workers_num;j++) {
+            int m_a, m_b , times = 0;
+            do {
+                m_a = rand()%machine_resources_num+1;
+                times ++;
+            }
+            while ( (moving_machines.count(m_a)||coder.m_ins[m_a].empty()) && times <20000) ;
+            if (times >=20000) return;
+            do {
+                m_b = rand()%machine_resources_num+1;
+                times ++;
+            }
+            while ( (moving_machines.count(m_b)||coder.m_ins[m_b].empty()) && times < 200000 );
+            merge_a.push_back(m_a);
+            merge_b.push_back(m_b);
+            moving_machines.insert(m_a);
+            moving_machines.insert(m_b);
+        }
+	    for ( int j=0;j<workers_num;j++) {
+	        workers[j]->before_merge(coder,coder.m_ins[merge_a[j]],coder.m_ins[merge_b[j]] );
+        }
+        vector<thread> mwthreads;
+	    for ( int j=0;j<workers_num;j++) {
+	        mwthreads.push_back(thread(run_thread,workers[j]));
+        }
+	    for ( int j=0;j<workers_num;j++) {
+	        mwthreads[j].join();
+        }
+	    for ( int j=0;j<workers_num;j++) {
+	        workers[j]->after_merge(coder,coder.m_ins[merge_a[j]],coder.m_ins[merge_b[j]] );
+        }
+        
 	    if (i%10==0) {
-            a.show_status();
+            coder.show_status();
             if (kbhit()) {
                 if (getch()=='a') break;
             }
@@ -68,16 +114,16 @@ void simulated_annealing (double end_time) {
     
     //a.make_integer_result(5600);
     
-    a.show_status();
+    coder.show_status();
     
 	//输出当前各服务器的disk状态 
 	map<int,int> disk_space; 
 	int space_remain = 0;
-	for (auto m :a.m_ins) {
+	for (auto m :coder.m_ins) {
 	   disk_space[m.disk]++;
 	   space_remain += disk_spec[m.m_ids]-m.disk; 
     }
 	for (auto d:disk_space) 
 	   cout << d.first << ":" << d.second <<endl;
-    global:: final_output = a.ins_pos;
+    global:: final_output = coder.ins_pos;
 }

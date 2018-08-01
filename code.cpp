@@ -177,7 +177,7 @@
     }
     
     
-    Code::Code(int _len) :len(_len),u_score(0),
+    Code::Code(int _len) :len(_len),u_score(0),max_ins_pair(0),
                             sim_disk_spec({0,40,60,80,100,120,150,167,180,200,250,300,500,600,650,1000,1024}) {
         for (int i=0;i<=_len;i++) m_ins.push_back(Machine(i));
         for (int i=0;i<sim_disk_spec.size();i++) {
@@ -504,6 +504,7 @@
             m_ins[ins_pos[moving_ins_id]].print();
             exit(0);
         }
+        cout << max_ins_pair <<endl;
     }
     
     //打印各类硬盘剩余情况 

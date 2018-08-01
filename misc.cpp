@@ -172,7 +172,7 @@ vector<pair<int, int> > process_output2(map<int, int>& output) {
         for (auto t :tmp ) {
             if (!st.m_ins[i].ins_ids.count(t)) {
                 for (j=1;j<i;j++) 
-                    if (v[j]==0&&c.move(t,j))
+                    if (c.move(t,j))
                         break;
                 assert(i-j);
                 answer.push_back(make_pair(t,j));
