@@ -270,9 +270,9 @@ void process_data() {
     
     total_jobs_cpu = 0;
     for (Jobs &a : job_res ) {
-        total_jobs_cpu += a.time*a.cpu*a.ins_size/15.0;
+        total_jobs_cpu += a.time*a.cpu*a.ins_size;
     }
-    compute_cpu_sup();
+    //compute_cpu_sup();
 }
 
 void read_output_file( string output_file_name, map<int,int> &result) {

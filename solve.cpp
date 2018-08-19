@@ -3,6 +3,7 @@
 #include "code.h"
 #include "misc.h"
 #include "simulated_annealing.h"
+#include "offline.h" 
 #include <iostream>
 
 int main() {
@@ -14,16 +15,16 @@ int main() {
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv",
             "../dataset/job_info.e.csv");
             */
-    /*
+    //*
     read_data(
             "../data_preliminary/scheduling_preliminary_b_instance_deploy_20180726.csv",
             "../data_preliminary/scheduling_preliminary_b_app_resources_20180726.csv",
             "../data_preliminary/scheduling_preliminary_b_machine_resources_20180726.csv",
             "../data_preliminary/scheduling_preliminary_b_app_interference_20180726.csv",
-            "../dataset/job_info.e.csv");
+            "../dataset/job_info.a.csv");
             //*/
             
-    //*
+    /*
     string input_num = "e";
     read_data(
             "../dataset/instance_deploy."+input_num+".csv",
@@ -35,6 +36,21 @@ int main() {
     process_data();
     //check_output_file("../../submit20180629215200.csv");
     //check_output_file("../../submit20180626111523.csv");
+    
+    const int online = 0;
+    const int offline = 1;
+    int mode = offline;
+    
+    
+    if (mode)
+    {
+    	map<int, int > ip;
+    	read_output_file("../submit_b_605109_s.csv", ip );
+    	map<int, pair<int, int> > job_pt;
+    	offline_scheduling(ip, job_pt);
+        return 0;
+    }
+    
     simulated_annealing (10);
     /*
     DP dp(machine_resources_num);
