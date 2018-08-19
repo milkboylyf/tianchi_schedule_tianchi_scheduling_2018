@@ -4,8 +4,8 @@
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o build/dp.o build/misc.o build/dp_lst.o build/deployer.o build/merge.o build/bestfit.o build/merge_parallel.o
-LINKOBJ  = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o build/dp.o build/misc.o build/dp_lst.o build/deployer.o build/merge.o build/bestfit.o build/merge_parallel.o
+OBJ      = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o build/dp.o build/misc.o build/dp_lst.o build/deployer.o build/merge.o build/bestfit.o build/merge_parallel.o build/jobs.o
+LINKOBJ  = build/global.o build/read.o build/solve.o build/code.o build/simulated_annealing.o build/dp.o build/misc.o build/dp_lst.o build/deployer.o build/merge.o build/bestfit.o build/merge_parallel.o build/jobs.o
 LIBS     = -L"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0" -L"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/lib" -O3 --std=c++11
 INCS     = -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include"
 CXXINCS  = -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include/c++" -I"C:/sys/mingw-w64/mingw32/i686-w64-mingw32/include" -I"C:/sys/mingw-w64/mingw32/include" -I"C:/sys/mingw-w64/mingw32/lib/gcc/i686-w64-mingw32/7.1.0/include"
@@ -59,3 +59,6 @@ build/bestfit.o: bestfit.cpp
 
 build/merge_parallel.o: merge_parallel.cpp
 	$(CPP) -c merge_parallel.cpp -o build/merge_parallel.o $(CXXFLAGS)
+
+build/jobs.o: jobs.cpp
+	$(CPP) -c jobs.cpp -o build/jobs.o $(CXXFLAGS)

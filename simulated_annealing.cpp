@@ -24,7 +24,7 @@ void simulated_annealing (double end_time) {
 	
 	//MergeWorker a(machine_resources_num);
 	
-	//*
+	/*
 	map<int, int > ip;
 	
 	read_output_file("../submit_b_605109_s.csv", ip );
@@ -33,32 +33,32 @@ void simulated_annealing (double end_time) {
 	
 	//生成初始解，当前算法核心2333 
 	/*/
-	a.init();                                     
-	a.show_status();
+	coder.init();                                     
+	coder.show_status();
 	
 	//有用了 
-	double score = a.ave_score(), temper = 1000000000, min_score = score;
+	double score = coder.ave_score(), temper = 1000000000, min_score = score;
 	int counter = 0, failed_times= 0, change_times = 0;
 	//disk_spec[1] = 10000; 
-	while ((double)clock()/CLOCKS_PER_SEC   - starttime < 20 && a.ave_score() > 5507.179) {             
+	while ((double)clock()/CLOCKS_PER_SEC   - starttime < 2 && coder.ave_score() > 5507.179) {             
         int tmp_i = rand()%instance_deploy_num+1;
-        if (a.move_ins(tmp_i)) {
-                double new_score = a.ave_score();
+        if (coder.move_ins(tmp_i)) {
+                double new_score = coder.ave_score();
                 if (judge(score,new_score,temper)) {
                     score = new_score;
-                    a.accept();
+                    coder.accept();
                     if (min_score>score) min_score = score;
                 }
-                else a.recover();
+                else coder.recover();
                 if(counter%100==0) {
-                    a.show_status();
+                    coder.show_status();
                     cout << "min_score: " << min_score << " temper: " << temper << " change times: " << change_times << " failed times: " << failed_times << " "; 
                 }
                 change_times++;
                 temper*=0.99999;
         }
         else {
-            a.recover();
+            coder.recover();
             failed_times++;
             //cout << "fail to move:" << tmp_i <<endl;
         }

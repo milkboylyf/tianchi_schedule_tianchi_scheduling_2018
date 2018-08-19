@@ -3,6 +3,7 @@
 #include "read.h"
 
 using namespace std;
+using namespace global;
 
 vector<double> parse_float_list(const string& s) {
     vector<double> res;
@@ -18,11 +19,26 @@ vector<double> parse_float_list(const string& s) {
     return res;
 }
 
+vector<string> split( const string& s) {
+    string sb = s;
+    vector<string> results;
+    while (sb.size()>0) {
+        int index = sb.find(',');
+        if (index == -1) {
+            results.push_back(sb);
+            return results;
+        }
+        results.push_back(sb.substr(0,index));
+        sb = sb.substr(index+1);
+    }
+}
+
 void read_data(
         string instance_deploy_file,
         string app_resources_file,
         string machine_resources_file,
-        string app_interference_file) {
+        string app_interference_file,
+        string job_resources_file) {
 
     io::CSVReader<3> in0(instance_deploy_file);
     std::string string_buffers[10];
@@ -104,9 +120,51 @@ void read_data(
          << global:: app_inter_max[3] << endl;
     */
     cerr << "input app_interference_num = " << (global:: app_interference_num = global:: app_inter_max.size()) << endl;
+
+    ifstream job_input(job_resources_file);
+    string line ;
+    while(!job_input.eof()) {
+        job_input >> line ;
+        if (line.size()<2) break;
+        cout << line <<endl;
+        vector<string> splits = split(line);
+        Jobs a;
+        if (!str_to_job_id.count(splits[0])) {
+            a.id = global::job_res.size();
+            global::job_id_to_str[a.id]= splits[0];
+            global::str_to_job_id[splits[0]] = a.id;
+        }
+        else a.id = global::str_to_job_id[splits[0]];
+        a.cpu = stod(splits[1]);
+        a.mem = stod(splits[2]);
+        a.ins_size = stol(splits[3]);
+        a.time = stol(splits[4]);
+        global::job_res.push_back(a);
+        a.fn = splits[5].size()?splits.size()-5:0;
+        for (int i=0;i<a.fn;i++) {
+            if (str_to_job_id.count(splits[i+5]))
+                a.f[i] = global::str_to_job_id[splits[i+5]];
+            else {
+                a.f[i] = global::job_res.size();
+                global::job_id_to_str[a.f[i]]= splits[0];
+                global::str_to_job_id[splits[0]] = a.f[i];
+            }
+        }
+    }
+    /*cerr << global:: app_inter1[3] << " " 
+         << global:: app_inter2[3] << " " 
+         << global:: app_inter_max[3] << endl;
+    */
+    cerr << "input app_interference_num = " << (global:: app_interference_num = global:: app_inter_max.size()) << endl;
 }
 
 void process_data() {
+    
+    large_num=small_num=0;
+    for (int i =1;i<=machine_resources_num;i++) {
+        if (disk_spec[i]>2000) large_num ++;
+        else small_num++;
+    }
     
     for (int i =0 ;i<global::time_len; i++) {
         global:: sum_cpu_line.push_back(0.0);
@@ -209,7 +267,12 @@ void process_data() {
             << "\t" << global:: app_apply[i] << "\t" << global:: app_inter_map[i][i] << endl;
             */
     }
-    //compute_cpu_sup();
+    
+    total_jobs_cpu = 0;
+    for (Jobs &a : job_res ) {
+        total_jobs_cpu += a.time*a.cpu*a.ins_size/15.0;
+    }
+    compute_cpu_sup();
 }
 
 void read_output_file( string output_file_name, map<int,int> &result) {
@@ -225,25 +288,39 @@ void read_output_file( string output_file_name, map<int,int> &result) {
     }
 }
 
-using namespace global;
-double cpu_score_in_mnum ( int k ) {
-    int space = 3000*92+(k-3000)*32;
+inline double compute_mch_score( double rate, double apps_per_mch, int mch_num) {
+    return (1+(exp(max(0.0,rate-0.5))-1)*apps_per_mch)*mch_num;
+}
+
+double cpu_score_with_mnum ( int k ) {
+    int space = large_num*92+(k-large_num)*32;
     double score = 0;
+    double apps_per_mch = (double)instance_deploy_num / k;
     for (int i=0;i<global::time_len;i++) {
         double l= 0.5, r= sum_cpu_line[i]/space;
         while (r-l>1e-6) {
             double score_a = 0, score_b = 0, mid = (l+r)/2;
-            score_a = (exp(mid-0.5)*10-9)*(k-3000)+(exp((sum_cpu_line[i]-mid*32*(k-3000))/(3000*92)-0.5)*10-9)*3000;
+            double rate_large = (sum_cpu_line[i]-mid*32*(k-large_num))/(large_num*92);
+            //double apps_large = , apps_small = mid*32*(k-large_num)/ ;
+            score_a = compute_mch_score(mid, apps_per_mch-1, small_num)
+                        + compute_mch_score(rate_large, apps_per_mch+1, large_num);
             mid+=1e-7;
-            score_b = (exp(mid-0.5)*10-9)*(k-3000)+(exp((sum_cpu_line[i]-mid*32*(k-3000))/(3000*92)-0.5)*10-9)*3000;
+            rate_large = (sum_cpu_line[i]-mid*32*(k-large_num))/(large_num*92);
+            score_b = compute_mch_score(mid, apps_per_mch-1, small_num)
+                        + compute_mch_score(rate_large, apps_per_mch+1, large_num);
             if (score_a>score_b) l= mid;
             else r= mid;
             //cout << mid << " $ " << score_a << " & " << score_b <<" " << (sum_cpu_line[i]-mid*32*(k-3000))/(3000*92) <<endl;
         }
         //cout << endl;
-        if (global::sum_cpu_line[i]/space<=0.5) score+= k;
+        double rate_large = (sum_cpu_line[i]-l*32*(k-large_num))/(large_num*92);
+        if (global::sum_cpu_line[i]/space<=0.5) {
+            //score -= (space/2-sum_cpu_line[i])/(small_num?32:92)*1.64;
+            score+= k;
+        }
         else 
-        score += (exp(l-0.5)*10-9)*(k-3000)+(exp((sum_cpu_line[i]-l*32*(k-3000))/(3000*92)-0.5)*10-9)*3000;
+        score += compute_mch_score(l, apps_per_mch-1, small_num)
+                        + compute_mch_score(rate_large, apps_per_mch+1, large_num);
         //score += (exp(max(sum_cpu_line[i]/space-0.5,0.0))*10-9)*k;
     }
     //cout <<  space << " " << score << endl;
@@ -252,8 +329,20 @@ double cpu_score_in_mnum ( int k ) {
 
 void compute_cpu_sup() {
     int l = 3000, r = 6000;
-    for (int i=4500;i<=5500;i++) 
-         cout << i << ":" << cpu_score_in_mnum(i) <<endl;
+    double job_cpu_lines[100];
+    double ins_cpu_lines_pre[100]={};
+    vector<double> cpu_lines_t = sum_cpu_line;
+    sort(cpu_lines_t.begin(),cpu_lines_t.end());
+    double cpu_th = 0;
+    for (int i=0;i<time_len;i++) {
+        ins_cpu_lines_pre[i] = cpu_lines_t[i] + (i?ins_cpu_lines_pre[i-1]:0);
+        if (i+1==time_len||total_jobs_cpu<cpu_lines_t[i]*(i+1)-ins_cpu_lines_pre[i]) {
+            cpu_th = (total_jobs_cpu+ins_cpu_lines_pre[i])/(i+1);
+        }
+    }
+    
+    for (int i=1000;i<=8000;i+=10) 
+         cout << i << ":" << cpu_score_with_mnum(i) <<endl;
     /*
     while ( r-l>2) {
         int mid = (l+r)/2;

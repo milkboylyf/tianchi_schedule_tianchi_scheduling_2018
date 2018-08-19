@@ -22,7 +22,7 @@ void MergeWorker::dfs_m_divide(int x) {
         return ;
     }
     int ins_app = instance_apps[reserved_ins[x]];
-    int action = rand()%2, prob = 120, t = 0;
+    int action = rand()%2, prob = 80, t = 0;
     if (action==0) {
         if (m1.add_instance(reserved_ins[x])) {
             //m1.compute_score();

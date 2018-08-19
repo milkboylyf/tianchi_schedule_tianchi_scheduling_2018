@@ -2,12 +2,14 @@
 #include <string>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 
 void read_data(
         string instance_deploy_file,
         string app_resources_file,
         string machine_resources_file,
-        string app_interference_file);
+        string app_interference_file,
+        string job_resources_file);
         
         
 void process_data();

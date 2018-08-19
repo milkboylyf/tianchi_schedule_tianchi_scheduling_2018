@@ -9,6 +9,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include "jobs.h"
 
 using namespace std;
 
@@ -27,6 +28,7 @@ extern vector<int> app_p, app_m, app_pm;
 
 
 extern int machine_resources_num;
+extern int large_num, small_num;
 extern vector<int> machine_ids;
 extern vector<int> cpu_spec, mem_spec, disk_spec, p_lim, m_lim, pm_lim;
 
@@ -52,6 +54,14 @@ extern map<int,int> app_inter_counter;
 extern vector<int> self_inter_num;
 
 extern map<int, int> final_output;
+
+extern vector<Jobs> job_res;
+
+extern map<int,string> job_id_to_str;
+extern map<string,int> str_to_job_id;
+
+extern double total_jobs_cpu;
+ 
 };
 
 namespace cst {

@@ -5,7 +5,7 @@ ParallelMergeWorker::ParallelMergeWorker(int _len): len(_len), m1(0), m2(0) {}
 void ParallelMergeWorker::dfs_m_divide(int x) {
     //cout << x << " " << reserved_ins[x] << endl;
     search_times ++;
-    if ( min_cpu_score <= 196 || search_times > 100000) return ;
+    if ( search_times > 100000) return ;
     if ( x >= reserved_ins.size() ) {
         /*
         cout << m1.ins_ids.size() <<endl;
@@ -22,7 +22,7 @@ void ParallelMergeWorker::dfs_m_divide(int x) {
         return ;
     }
     int ins_app = instance_apps[reserved_ins[x]];
-    int action = rand()%2, prob = 120, t = 0;
+    int action = rand()%2, prob = 40, t = 0;
     if (action==0) {
         if (m1.add_instance(reserved_ins[x])) {
             //m1.compute_score();

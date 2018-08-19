@@ -16,6 +16,7 @@ vector<int> app_apply = {-1};
 vector<int> app_p = {-1}, app_m = {-1}, app_pm = {-1};
 
 int machine_resources_num;
+int large_num, small_num;
 vector<int> machine_ids = {0};
 vector<int> cpu_spec = {0}, mem_spec = {0}, disk_spec = {0};
 vector<int> p_lim = {0}, m_lim = {0}, pm_lim = {0};

@@ -53,7 +53,7 @@
         score = 0.0;
         if (empty()) return 0.0;
         for (auto t : cpu ) {
-            score += cst::a*exp( max(0.0,(double)t/cpu_spec[m_ids] - cst::b )) - 9 ;
+            score += 1+(1+ins_ids.size())*(exp( max(0.0,(double)t/cpu_spec[m_ids] - cst::b )) - 1) ;
         }
         return score;
     }
@@ -72,8 +72,8 @@
             || pm_lim[m_ids] < PM + app_pm[ins_app] ) 
             return false;
         for (int i=0;i<time_len;i++) 
-            if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i] +1*(!no_inter)
-                || mem_spec[m_ids] < mem[i] + app_mem_line[ins_app][i] +1*(!no_inter) ) {
+            if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i] +(no_inter?0:1e-7)
+                || mem_spec[m_ids] < mem[i] + app_mem_line[ins_app][i] +(no_inter?0:1e-7) ) {
                     //cout << "CPU & MEM" <<endl;
             return false;
         }
@@ -200,7 +200,7 @@
     }
     
     void Code::init() {
-        int ct = 3001;
+        int ct = machine_resources_num;
         int index[instance_deploy_num+2];
         index[0]=0;
         
@@ -219,14 +219,15 @@
         for (int i=1;i<=instance_deploy_num;i++) {assert(v.count(index[i])==0);v.insert(index[i]);}
         
         //放置一些过大的实例，这些实例是每个服务器只有一个的，不能移动 
+        int t_ins_num = 0;
         for (int i=1;i<=instance_deploy_num;i++) 
             if ( get_level(index[i])==100 )
         {
             //cout << ct <<endl;
-            m_ins[ct].add_instance(index[i]);
+            assert(m_ins[ct].add_instance(index[i]));
             //m_ins[ct].set_constant(index[i]);
             running.insert(ct);
-            ins_pos[index[i]] = ct++;
+            ins_pos[index[i]] = ct--;
             ins_remain[disk_index[app_apply[instance_apps[index[i]]]]]--;
         }
         
@@ -265,7 +266,7 @@
                         || ( index[i] < 20000 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +40 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -5 )
                         || ( index[i]>= 20000 && index[i] < 67600 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +60 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -15 )
                         //|| (m_ins[tmp_m].empty()==0 && m_ins[tmp_m].check_cpu_overload(index[i]) ) 
-                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.71 > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
+                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.81 > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
                         //|| (((double)cpu_spec[tmp_m]/2- m_ins[tmp_m].cpu[0])/(disk_spec[tmp_m] - m_ins[tmp_m].disk)*5< (double)app_cpu_line[instance_apps[index[i]]][0] /app_apply[instance_apps[index[i]]])
                         || !m_ins[tmp_m].add_instance(index[i]) );
                 if (i%1000==0)
@@ -492,9 +493,10 @@
             }
             //*/
         }
-        cout << endl << "machines in cond: " << counter;
-        cout << endl << endl << "machines_num :" << running.size() << " u_score:" << u_score
-            << " delta_score:" << ave_score() << " min_score:" << min_machine_score << endl
+        //cout << endl << "machines in cond: " << counter;
+        cout << "machines_num :" << running.size() << " u_score:" << u_score
+            << " delta_score:" << ave_score() << " min_score:" << min_machine_score 
+            << " time:" << (double)clock()/CLOCKS_PER_SEC //<< endl;
             << " max_cpu:" << max_cpu/cpu_limit << " all_cpu:" << all_cpu/time_len/cpu_limit 
             << " max_mem:" << max_mem/mem_limit << " all_mem:" << all_mem/time_len/mem_limit
             << " all_disk:" << (double)all_disk/disk_limit << " overload_num:" << overload_num << endl;
@@ -504,7 +506,7 @@
             m_ins[ins_pos[moving_ins_id]].print();
             exit(0);
         }
-        cout << max_ins_pair <<endl;
+        //cout << max_ins_pair <<endl;
     }
     
     //打印各类硬盘剩余情况 
