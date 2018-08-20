@@ -11,7 +11,14 @@
 #include "misc.h" 
 #include "bestfit.h"
 #include "read.h"
+
+#ifdef WIN32 
+
 #include <conio.h>
+
+#endif
+
+
 #include <thread>
 
 bool judge( double score, double new_score );

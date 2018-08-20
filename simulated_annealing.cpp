@@ -69,7 +69,7 @@ void simulated_annealing (double end_time) {
 	
 	
 	
-	for (int i=0;i<4000000&&coder.ave_score()>5506+1e-4;i++) {
+	for (int i=0;i<4000;i++) {
 	    vector<int> merge_a, merge_b;
 	    set<int> moving_machines;
 	    for ( int j=0;j<workers_num;j++) {
@@ -106,9 +106,12 @@ void simulated_annealing (double end_time) {
         
 	    if (i%10==0) {
             coder.show_status();
+            
+#ifdef WIN32
             if (kbhit()) {
                 if (getch()=='a') break;
             }
+#endif
         }
     }
     
