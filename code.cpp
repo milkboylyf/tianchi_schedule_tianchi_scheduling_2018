@@ -266,7 +266,7 @@
                         || ( index[i] < 20000 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +40 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -5 )
                         || ( index[i]>= 20000 && index[i] < 67600 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +60 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -15 )
                         //|| (m_ins[tmp_m].empty()==0 && m_ins[tmp_m].check_cpu_overload(index[i]) ) 
-                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.81 > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
+                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.61 > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
                         //|| (((double)cpu_spec[tmp_m]/2- m_ins[tmp_m].cpu[0])/(disk_spec[tmp_m] - m_ins[tmp_m].disk)*5< (double)app_cpu_line[instance_apps[index[i]]][0] /app_apply[instance_apps[index[i]]])
                         || !m_ins[tmp_m].add_instance(index[i]) );
                 if (i%1000==0)

@@ -126,7 +126,7 @@ void read_data(
     while(!job_input.eof()) {
         job_input >> line ;
         if (line.size()<2) break;
-        cout << line <<endl;
+        //cout << line <<endl;
         vector<string> splits = split(line);
         Jobs a;
         if (!str_to_job_id.count(splits[0])) {

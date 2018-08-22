@@ -421,3 +421,26 @@ void check_output_file(string output_file_name) {
     c.show_extra_info();
 }
 
+void transform_pos( map<int, int> &pos , vector<int> & ins_mch ) {
+    int result[100000];
+    for (auto &t:pos) result[t.first] = t.second;
+    Code c(machine_resources_num);
+    for (int i=1;i<=instance_deploy_num;i++) if ( ins_mch[i] !=-1 ){
+        c.move(i,ins_mch[i]);
+    }
+    for (int i=1;i<=instance_deploy_num;i++) {
+        int ob = result[i];
+        if (!c.m_ins[ob].ins_ids.count(i))
+        for (int r : c.m_ins[ob].ins_ids) if (instance_apps[i] == instance_apps[r]) {
+            if (result[r]!=ob) {
+                int tmp = result[r];
+                result[r] = ob;
+                result[i] = tmp;
+                break;
+            }
+        }
+    }
+    pos.clear();
+    for (int i=1;i<=instance_deploy_num;i++) pos[i] = result[i];
+}
+

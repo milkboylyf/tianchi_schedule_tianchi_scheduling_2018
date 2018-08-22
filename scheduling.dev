@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=12
 CompilerSettings=0000000000000000000000000
-UnitCount=28
+UnitCount=30
 
 [VersionInfo]
 Major=1
@@ -322,6 +322,26 @@ BuildCmd=
 
 [Unit28]
 FileName=offline.h
+CompileCpp=1
+Folder=include
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit29]
+FileName=move.cpp
+CompileCpp=1
+Folder=source
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit30]
+FileName=move.h
 CompileCpp=1
 Folder=include
 Compile=1

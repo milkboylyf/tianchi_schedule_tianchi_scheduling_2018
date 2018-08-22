@@ -25,4 +25,6 @@ void check_output_file(string output_file_name) ;
 
 vector<pair<int, int> > process_output2(map<int, int>& output) ;
 
+void transform_pos( map<int, int> &pos , vector<int> & ins_mch ); 
+
 #endif

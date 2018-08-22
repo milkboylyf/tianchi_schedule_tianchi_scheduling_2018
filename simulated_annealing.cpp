@@ -107,7 +107,7 @@ void simulated_annealing (double end_time) {
 	    if (i%10==0) {
             coder.show_status();
             
-#ifdef WIN32
+#ifdef _WIN32
             if (kbhit()) {
                 if (getch()=='a') break;
             }

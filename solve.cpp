@@ -4,6 +4,7 @@
 #include "misc.h"
 #include "simulated_annealing.h"
 #include "offline.h" 
+#include "move.h"
 #include <iostream>
 
 int main() {
@@ -15,7 +16,7 @@ int main() {
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv",
             "../dataset/job_info.e.csv");
             */
-    //*
+    /*
     read_data(
             "../data_preliminary/scheduling_preliminary_b_instance_deploy_20180726.csv",
             "../data_preliminary/scheduling_preliminary_b_app_resources_20180726.csv",
@@ -24,7 +25,7 @@ int main() {
             "../dataset/job_info.a.csv");
             //*/
             
-    /*
+    //*
     string input_num = "e";
     read_data(
             "../dataset/instance_deploy."+input_num+".csv",
@@ -39,10 +40,11 @@ int main() {
     
     const int online = 0;
     const int offline = 1;
-    int mode = offline;
+    const int move_ins = 2;
+    int mode = 2;
     
     
-    if (mode)
+    if (mode == offline)
     {
     	map<int, int > ip;
     	read_output_file("../submit_b_605109_s.csv", ip );
@@ -50,21 +52,30 @@ int main() {
     	offline_scheduling(ip, job_pt);
         return 0;
     }
+    else if (mode == move_ins) {
+    	map<int, int > ip;
+    	read_output_file("../submit_final_e_10800.csv", ip );
+    	transform_pos(ip,instance_machines);
+    	test_move(ip);
+    	return 0;
+    }
+    else {
     
-    simulated_annealing (10);
-    /*
-    DP dp(machine_resources_num);
-    dp.init();
-    dp.dp_plan();
-    global:: final_output = dp.ins_pos;
-    /*//* 
-    Deployer dp(machine_resources_num);
-    dp.init();
-    dp.package_up();
-    global:: final_output = dp.ins_pos;
-    //*/
-    check_output(global:: final_output);
-    write_output(process_output2(global:: final_output), "../submit_b.csv");
-    //write_output_origin(global:: final_output, "../submit_b.csv");
+        simulated_annealing (10);
+        /*
+        DP dp(machine_resources_num);
+        dp.init();
+        dp.dp_plan();
+        global:: final_output = dp.ins_pos;
+        /*//* 
+        Deployer dp(machine_resources_num);
+        dp.init();
+        dp.package_up();
+        global:: final_output = dp.ins_pos;
+        //*/
+        check_output(global:: final_output);
+        //write_output(process_output2(global:: final_output), "../submit_final_"+input_num+"_.csv");
+        write_output_origin(global:: final_output, "../submit_final_"+input_num+"_.csv");
+    }
     return 0;
 }
