@@ -85,6 +85,73 @@ struct RMQ {
     }
 };
 
+template<typename T, int range>
+struct RangeMax{
+    vector<T> value[2], qv[2], qi[2];
+    int front[2], back[2];
+    RangeMax() {
+        value[0] = vector<T>(range + 10, 0);
+        value[1] = vector<T>(range + 10, 0);
+        qv[0] = vector<T>(range + 10, 0);
+        qv[1] = vector<T>(range + 10, 0);
+        qi[0] = vector<T>(range + 10, 0);
+        qi[1] = vector<T>(range + 10, 0);
+    }
+    void range_add(int a, int b, T x0, T x1) {
+        for(int i = a; i < b; i++) {
+            value[0][i] += x0;
+            value[1][i] += x1;
+        }
+    }
+    int next_pos(T max_lim0, T max_lim1, int length, int end, int start_pos) {
+        if(start_pos + length > end) return -1;
+        front[0] = front[1] = back[0] = back[1] = 0;
+        int pos = start_pos;
+        for(int i = pos; i < length + pos; i++) {
+            while(back[0] - front[0] > 0 && qv[0][back[0] - 1] <= value[0][i] + _EPS) {
+                back[0]--;
+            }
+            qv[0][back[0]] = value[0][i];
+            qi[0][back[0]] = i;
+            back[0] += 1;
+
+            while(back[1] - front[1] > 0 && qv[1][back[1] - 1] <= value[1][i] + _EPS) {
+                back[1]--;
+            }
+            qv[1][back[1]] = value[1][i];
+            qi[1][back[1]] = i;
+            back[1] += 1;
+        }
+        while((qv[0][front[0]] > max_lim0 + _EPS 
+                || qv[1][front[1]] > max_lim1 + _EPS) && pos + length <= end) {
+            pos += 1;
+            if(pos + length - 1 >= end) break;
+            while(back[0] - front[0] > 0 && qv[0][back[0] - 1] <= value[0][pos + length - 1] + _EPS) {
+                back[0]--;
+            }
+            qv[0][back[0]] = value[0][pos + length - 1];
+            qi[0][back[0]] = pos + length - 1;
+            back[0] += 1;
+            if(qi[0][front[0]] == pos - 1) {
+                front[0] += 1;
+            }
+            while(back[1] - front[1] > 0 && qv[1][back[1] - 1] <= value[1][pos + length - 1] + _EPS) {
+                back[1]--;
+            }
+            qv[1][back[1]] = value[1][pos + length - 1];
+            qi[1][back[1]] = pos + length - 1;
+            back[1] += 1;
+            if(qi[1][front[1]] == pos - 1) {
+                front[1] += 1;
+            }
+        }
+        if(pos + length <= end) {
+            return pos;
+        }
+        return -1;
+    }
+};
+
 struct OrderGenerator {
     int reverse_cnt[_MAX_JOB];
     int max_len[_MAX_JOB], max_link[_MAX_JOB];
@@ -146,6 +213,7 @@ int first_valid_pos(int job_id) {
 }
 
 RMQ<double, _MAX_TIME_LEN, true> _rmq[_MAX_MACHINE_NUM][2];
+RangeMax<double, _MAX_TIME_LEN> _rm[_MAX_MACHINE_NUM];
 vector<int> _empty_machines, _other_machines;
 int _machine_cnt[_MAX_MACHINE_NUM], _is_empty[_MAX_MACHINE_NUM];
 
@@ -156,6 +224,7 @@ int first_empty_pos(
     int pos = -1;
     double lim = 0.5;
     if(_is_empty[machine_id]) lim = 1;
+    /*
     for(int j = start_pos; j + job_res[job_id].time <= 1470; j++) {
         double rm_cpu = _rmq[machine_id][0].range_max(j, j + job_res[job_id].time);
         double rm_mem = _rmq[machine_id][1].range_max(j, j + job_res[job_id].time);
@@ -166,6 +235,18 @@ int first_empty_pos(
             break;
         }
     }
+    */
+    
+    int t_pos = _rm[machine_id].next_pos(
+        cpu_spec[machine_id]*lim - job_res[job_id].cpu,
+        mem_spec[machine_id] - job_res[job_id].mem,
+        job_res[job_id].time,
+        1470,
+        start_pos);
+    return t_pos;
+    //cerr << t_pos << " " << pos << endl;
+    //assert(t_pos == pos);
+    /*
     if(pos != -1) {
         double cpu_max = _rmq[machine_id][0].range_max(pos, pos + job_res[job_id].time);
         double mem_max = _rmq[machine_id][1].range_max(pos, pos + job_res[job_id].time);
@@ -174,6 +255,7 @@ int first_empty_pos(
         assert(cpu_max + job_res[job_id].cpu <= cpu_spec[machine_id] + _EPS);
         assert(mem_max + job_res[job_id].mem <= mem_spec[machine_id] + _EPS);
     }
+    */
     return pos;
 }
 
@@ -297,9 +379,6 @@ void offline_scheduling(
     exit(0);
     */
 
-
-    
-
     memset(_is_empty, 0, sizeof _is_empty);
     for(auto it: ins_pos) {
         int app = instance_apps[it.first];
@@ -308,8 +387,13 @@ void offline_scheduling(
         for(int i = 0; i < _TIME_LEN; i++) {
             //cerr << mach << " " << i*_TIME_DUR << " " << i*_TIME_DUR + _TIME_DUR << " " 
                  //<< app << " " << i << endl;
-            _rmq[mach][0].range_add(i*_TIME_DUR, i*_TIME_DUR + _TIME_DUR, app_cpu_line[app][i]);
-            _rmq[mach][1].range_add(i*_TIME_DUR, i*_TIME_DUR + _TIME_DUR, app_mem_line[app][i]);
+            //_rmq[mach][0].range_add(i*_TIME_DUR, i*_TIME_DUR + _TIME_DUR, app_cpu_line[app][i]);
+            //_rmq[mach][1].range_add(i*_TIME_DUR, i*_TIME_DUR + _TIME_DUR, app_mem_line[app][i]);
+            _rm[mach].range_add(
+                i*_TIME_DUR, 
+                i*_TIME_DUR + _TIME_DUR, 
+                app_cpu_line[app][i], 
+                app_mem_line[app][i]);
         }
     }
     for(int i = 1; i <= machine_resources_num; i++) {
@@ -321,6 +405,8 @@ void offline_scheduling(
             _other_machines.push_back(i);
         }
     }
+    cerr << "empty machine cnt: " << _empty_machines.size() 
+         << "no empty machine cnt: " << _other_machines.size() << endl;
     sort(_empty_machines.begin(), _empty_machines.end(), _machine_id_cmp);
     while((int)_empty_machines.size() > num) {
         _empty_machines.pop_back();
@@ -340,13 +426,16 @@ void offline_scheduling(
             int p = -q.top().first;
             q.pop();
             _job_pos_and_time.push_back(make_tuple(v, mach, p));
+            /*
             double cpu_max = _rmq[mach][0].range_max(p, p + job_res[v].time);
             double mem_max = _rmq[mach][1].range_max(p, p + job_res[v].time);
             assert(cpu_max + job_res[v].cpu <= cpu_spec[mach] + _EPS);
             assert(mem_max + job_res[v].mem <= mem_spec[mach] + _EPS);
+            */
             //cerr << "ss" << endl;   
-            _rmq[mach][0].range_add(p, p + job_res[v].time, job_res[v].cpu);
-            _rmq[mach][1].range_add(p, p + job_res[v].time, job_res[v].mem);
+            ///_rmq[mach][0].range_add(p, p + job_res[v].time, job_res[v].cpu);
+            //_rmq[mach][1].range_add(p, p + job_res[v].time, job_res[v].mem);
+            _rm[mach].range_add(p, p + job_res[v].time, job_res[v].cpu, job_res[v].mem);
             /*
             double cpu_max = _rmq[mach][0].range_max(p, p + job_res[v].time);
             double mem_max = _rmq[mach][1].range_max(p, p + job_res[v].time);
