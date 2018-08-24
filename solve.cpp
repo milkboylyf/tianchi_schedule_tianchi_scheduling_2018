@@ -45,9 +45,9 @@ int main() {
     if (mode)
     {
     	map<int, int > ip;
-    	read_output_file("../submit_b_605109_s.csv", ip );
-    	map<int, pair<int, int> > job_pt;
-    	offline_scheduling(ip, job_pt);
+    	read_output_file("../submit_b_605109_s.csv", ip);
+    	vector<tuple<int, int, int> > job_pt;
+    	offline_scheduling(ip, job_pt, 10000);
         return 0;
     }
     
