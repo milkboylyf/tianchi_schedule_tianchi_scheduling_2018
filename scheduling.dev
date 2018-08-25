@@ -27,9 +27,9 @@ CommandLine=
 Folders=include,source
 IncludeVersionInfo=0
 SupportXPThemes=0
-CompilerSet=12
-CompilerSettings=0000000000000000000000000
-UnitCount=30
+CompilerSet=13
+CompilerSettings=0000000000000000001000000
+UnitCount=32
 
 [VersionInfo]
 Major=1
@@ -342,6 +342,26 @@ BuildCmd=
 
 [Unit30]
 FileName=move.h
+CompileCpp=1
+Folder=include
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit31]
+FileName=move_parallel.cpp
+CompileCpp=1
+Folder=source
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit32]
+FileName=move_parallel.h
 CompileCpp=1
 Folder=include
 Compile=1

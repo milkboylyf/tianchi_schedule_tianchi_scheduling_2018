@@ -125,22 +125,27 @@ void read_data(
     ifstream job_input(job_resources_file);
     string line ;
     vector<vector<string> > splits_list;
-    while(!job_input.eof()) {
+    while(true) {
         job_input >> line ;
-        if (line.size()<2) break;
-        cout << line <<endl;
+        if (line.size()<5||job_input.eof()) break;
+        cout << "#" << line << "#" <<endl;
         vector<string> sp = split(line);
         splits_list.push_back(sp);
         Jobs a;
         a.name = sp[0];
         job_res.push_back(a);
     }
-    sort(job_res.begin(), job_res.end(), Jobs_cmp);
+    //sort(job_res.begin(), job_res.end(), Jobs_cmp);
     for(int i = 0; i < (int)job_res.size(); i++) {
+        if (i==5239)
+            int a = 0;
+        //cout << job_res[i].name << " " << i << endl;
         job_res[i].id = i;
         str_to_job_id[job_res[i].name] = i;
     }
     for(int i = 0; i < (int)splits_list.size(); i++) {
+        if (i==5239)
+            int u = 0;
         vector<string>& ls = splits_list[i];
         int id = str_to_job_id[ls[0]];
         Jobs& a = job_res[id];
@@ -149,7 +154,13 @@ void read_data(
         a.ins_size = stol(ls[3]);
         a.time = stol(ls[4]);
         a.fn = ls[5].size()?ls.size()-5:0;
-        //for (int i=0;i<a.fn;i++) a.f[i] = splits_list[i]+6 
+        for (int j=0;j<a.fn;j++) {
+            if (str_to_job_id.count(ls[j+5]))
+                a.f[j] = global::str_to_job_id[ls[j+5]];
+            else {
+                assert(0);
+            }
+        }
         /*
         cerr << a.id << " " << a.name
              << a.cpu << " " << a.mem << " " << a.ins_size << " " << a.time << " " << a.fn << endl;
