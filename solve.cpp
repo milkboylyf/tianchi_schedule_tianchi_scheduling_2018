@@ -16,7 +16,7 @@ int main() {
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv",
             "../dataset/job_info.e.csv");
             */
-    /*
+    //*
     read_data(
             "../data_preliminary/scheduling_preliminary_b_instance_deploy_20180726.csv",
             "../data_preliminary/scheduling_preliminary_b_app_resources_20180726.csv",
@@ -24,9 +24,9 @@ int main() {
             "../data_preliminary/scheduling_preliminary_b_app_interference_20180726.csv",
             "../dataset/job_info.a.csv");
             //*/
-            
-    //*
-    string input_num = "e";
+       
+    string input_num = "e";     
+    /*
     read_data(
             "../dataset/instance_deploy."+input_num+".csv",
             "../dataset/app_resources.csv",
@@ -41,15 +41,15 @@ int main() {
     const int online = 0;
     const int offline = 1;
     const int move_ins = 2;
-    int mode = 0;
+    int mode = 1;
     
     
     if (mode == offline)
     {
     	map<int, int > ip;
-    	read_output_file("../submit_b_605109_s.csv", ip );
-    	map<int, pair<int, int> > job_pt;
-    	offline_scheduling(ip, job_pt);
+    	read_output_file("../submit_b_605109_s.csv", ip);
+    	vector<tuple<int, int, int> > job_pt;
+    	offline_scheduling(ip, job_pt, 900);
         return 0;
     }
     else if (mode == move_ins) {

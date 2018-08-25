@@ -31,6 +31,7 @@ vector<string> split( const string& s) {
         results.push_back(sb.substr(0,index));
         sb = sb.substr(index+1);
     }
+    return results;
 }
 
 void read_data(
@@ -123,14 +124,44 @@ void read_data(
 
     ifstream job_input(job_resources_file);
     string line ;
+    vector<vector<string> > splits_list;
     while(!job_input.eof()) {
         job_input >> line ;
         if (line.size()<2) break;
-        //cout << line <<endl;
-        vector<string> splits = split(line);
+        cout << line <<endl;
+        vector<string> sp = split(line);
+        splits_list.push_back(sp);
         Jobs a;
+        a.name = sp[0];
+        job_res.push_back(a);
+    }
+    sort(job_res.begin(), job_res.end(), Jobs_cmp);
+    for(int i = 0; i < (int)job_res.size(); i++) {
+        job_res[i].id = i;
+        str_to_job_id[job_res[i].name] = i;
+    }
+    for(int i = 0; i < (int)splits_list.size(); i++) {
+        vector<string>& ls = splits_list[i];
+        int id = str_to_job_id[ls[0]];
+        Jobs& a = job_res[id];
+        a.cpu = stod(ls[1]);
+        a.mem = stod(ls[2]);
+        a.ins_size = stol(ls[3]);
+        a.time = stol(ls[4]);
+        a.fn = ls[5].size()?ls.size()-5:0;
+        //for (int i=0;i<a.fn;i++) a.f[i] = splits_list[i]+6 
+        /*
+        cerr << a.id << " " << a.name
+             << a.cpu << " " << a.mem << " " << a.ins_size << " " << a.time << " " << a.fn << endl;
+        */
+            // exit(0);
+    }
+    /*
+
+        Jobs a;
+        str_to_job_id[splits[0]] = str
         if (!str_to_job_id.count(splits[0])) {
-            a.id = global::job_res.size();
+            a.id = global::job_id_to_str.size();
             global::job_id_to_str[a.id]= splits[0];
             global::str_to_job_id[splits[0]] = a.id;
         }
@@ -139,18 +170,19 @@ void read_data(
         a.mem = stod(splits[2]);
         a.ins_size = stol(splits[3]);
         a.time = stol(splits[4]);
-        global::job_res.push_back(a);
+        global::job_res[a.id] = a;
         a.fn = splits[5].size()?splits.size()-5:0;
         for (int i=0;i<a.fn;i++) {
             if (str_to_job_id.count(splits[i+5]))
                 a.f[i] = global::str_to_job_id[splits[i+5]];
             else {
-                a.f[i] = global::job_res.size();
+                a.f[i] = global::job_id_to_str.size();
                 global::job_id_to_str[a.f[i]]= splits[0];
                 global::str_to_job_id[splits[0]] = a.f[i];
             }
         }
     }
+    */
     /*cerr << global:: app_inter1[3] << " " 
          << global:: app_inter2[3] << " " 
          << global:: app_inter_max[3] << endl;

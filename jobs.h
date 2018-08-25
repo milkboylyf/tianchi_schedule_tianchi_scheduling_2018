@@ -9,6 +9,7 @@ using namespace std;
 
 struct Jobs {
     int id;
+    string name;
     double cpu;
     double mem;
     int ins_size;
@@ -16,6 +17,8 @@ struct Jobs {
     int fn;
     int f[100];
 };
+
+bool Jobs_cmp(const Jobs& a, const Jobs& b);
 
 
 #endif 
