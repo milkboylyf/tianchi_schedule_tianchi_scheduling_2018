@@ -128,7 +128,7 @@ void read_data(
     while(!job_input.eof()) {
         job_input >> line ;
         if (line.size()<2) break;
-        cout << line <<endl;
+        //cout << line <<endl;
         vector<string> sp = split(line);
         splits_list.push_back(sp);
         Jobs a;
@@ -149,6 +149,13 @@ void read_data(
         a.ins_size = stol(ls[3]);
         a.time = stol(ls[4]);
         a.fn = ls[5].size()?ls.size()-5:0;
+        for (int j=0;j<a.fn;j++) {
+            if (str_to_job_id.count(ls[j+5]))
+                a.f[j] = global::str_to_job_id[ls[j+5]];
+            else {
+                assert(0);
+            }
+        }
         /*
         cerr << a.id << " " << a.name
              << a.cpu << " " << a.mem << " " << a.ins_size << " " << a.time << " " << a.fn << endl;
