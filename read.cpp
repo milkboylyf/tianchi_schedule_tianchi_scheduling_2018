@@ -202,6 +202,7 @@ void process_data() {
     int counter = 0;
     double ave_cpu_p_disk = 0;
     for (int i=1;i<=global:: instance_deploy_num;i++) {
+        instance_constance.push_back(0);
         global:: instance_index[global:: instance_ids[i]] = i;
         global:: app_ins_num[global:: instance_apps[i]]++;
         double max_cpu =0;

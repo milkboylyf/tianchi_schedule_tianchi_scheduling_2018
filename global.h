@@ -19,6 +19,8 @@ extern vector<int> instance_ids;
 extern vector<int> instance_apps;
 extern vector<int> instance_machines;
 
+extern vector<int> instance_constance;
+
 extern int app_resources_num;
 extern vector<int> app_ids;
 extern vector<vector<double> > app_cpu_line;
@@ -60,7 +62,7 @@ extern vector<Jobs> job_res;
 extern map<int,string> job_id_to_str;
 extern map<string,int> str_to_job_id;
 
-extern double total_jobs_cpu;
+extern double total_jobs_cpu; 
  
 };
 

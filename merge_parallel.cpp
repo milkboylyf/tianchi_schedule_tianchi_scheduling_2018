@@ -78,6 +78,8 @@ void ParallelMergeWorker::before_merge( Code &coder, Machine &machine_1 , Machin
     
     coder.accept();
     reserved_ins.clear();
+    m1.clear();
+    m2.clear();
     m1.m_ids = machine_1.m_ids;
     m2.m_ids = machine_2.m_ids;
     min_cpu_score = machine_1.compute_score() + machine_2.compute_score();
@@ -92,6 +94,23 @@ void ParallelMergeWorker::before_merge( Code &coder, Machine &machine_1 , Machin
     machine_1.clear();
     machine_2.clear();
     //sort(reserved_ins.begin(),reserved_ins.end(),ins_cmp);
+    
+    
+    vector<int> cnt_ins;
+    for (auto &t : reserved_ins) if (instance_constance[t]) {
+        cnt_ins.push_back(t);
+        if (tmp_m_ins_ids.count(t))
+            m1.add_instance(t,true);
+        else 
+            m2.add_instance(t,true);
+    }
+    constant_ins_num = cnt_ins.size();
+    for (auto &t : reserved_ins) if (!instance_constance[t]) {
+        cnt_ins.push_back(t);
+    }
+    reserved_ins = cnt_ins;
+    
+    
     reserved_applys[reserved_ins.size()] = 0;
     for (int i=reserved_ins.size()-1;i>=0;i--) 
         reserved_applys[i] = reserved_applys[i+1]+reserved_ins[i];
@@ -107,11 +126,11 @@ void ParallelMergeWorker::after_merge ( Code &coder, Machine &machine_1 , Machin
     assert(min_cpu_score <100000);
     
     for (auto ins: reserved_ins ) if ( tmp_m_ins_ids.count(ins) ) {
-        assert( coder.move(ins,machine_1.m_ids) );
+        assert( coder.move(ins,machine_1.m_ids,instance_constance[ins]) );
     }
     
     for (auto ins: reserved_ins ) if ( !tmp_m_ins_ids.count(ins) ) {
-        assert( coder.move(ins,machine_2.m_ids) ) ;
+        assert( coder.move(ins,machine_2.m_ids,instance_constance[ins]) ) ;
     }
     
     //u_score += machine_1.compute_score();

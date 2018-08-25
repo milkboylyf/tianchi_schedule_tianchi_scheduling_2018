@@ -7,6 +7,7 @@
 #include <cmath>
 #include <iostream>
 #include <assert.h>
+#include <algorithm>
 #include <time.h>
 
 using namespace std;

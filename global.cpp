@@ -8,6 +8,8 @@ vector<int> instance_ids = {-1};
 vector<int> instance_apps = {-1};
 vector<int> instance_machines = {-1};
 
+vector<int> instance_constance = {1};
+
 int app_resources_num;
 vector<int> app_ids = {-1};
 vector<vector<double> > app_cpu_line = {{}};

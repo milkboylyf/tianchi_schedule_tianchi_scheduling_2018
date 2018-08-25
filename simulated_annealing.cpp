@@ -8,9 +8,8 @@ bool judge( double score, double new_score ,double temper) {
 }
 
 void run_thread( ParallelMergeWorker *mw ) {
-    mw->dfs_m_divide(0);
+    mw->dfs_m_divide(mw->constant_ins_num);
 }
-
 
 void simulated_annealing (double end_time) {
     
@@ -19,7 +18,8 @@ void simulated_annealing (double end_time) {
 	Code coder(machine_resources_num);
 	int workers_num = 1;
 	vector<ParallelMergeWorker*> workers;
-	for ( int i=0;i<workers_num;i++) workers.push_back(new ParallelMergeWorker(machine_resources_num));
+	for ( int i=0;i<workers_num;i++) 
+        workers.push_back(new ParallelMergeWorker(machine_resources_num));
 	//ParallelMergeWorker mw(machine_resources_num);
 	
 	//MergeWorker a(machine_resources_num);
@@ -84,7 +84,7 @@ void simulated_annealing (double end_time) {
                 m_b = rand()%machine_resources_num+1;
                 times ++;
             }
-            while ( (moving_machines.count(m_b)||coder.m_ins[m_b].empty()) && times < 200000 );
+            while ( (m_a == m_b || moving_machines.count(m_b)||coder.m_ins[m_b].empty()) && times < 200000 );
             merge_a.push_back(m_a);
             merge_b.push_back(m_b);
             moving_machines.insert(m_a);

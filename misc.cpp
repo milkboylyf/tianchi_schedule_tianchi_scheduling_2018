@@ -444,3 +444,17 @@ void transform_pos( map<int, int> &pos , vector<int> & ins_mch ) {
     for (int i=1;i<=instance_deploy_num;i++) pos[i] = result[i];
 }
 
+void reverse_pos( map<int, int> &pos , vector<int> & ins_mch ) {
+    map<int, int> new_pos ;
+    vector<int> new_ins_mch;
+    for (int i=0;i<=instance_deploy_num;i++) new_ins_mch.push_back(-1);
+    for (int i=1;i<=instance_deploy_num;i++) {
+        assert(ins_mch[i]!=-1);
+        assert(pos[i]);
+        new_pos[i] = ins_mch[i];
+        new_ins_mch[i] = pos[i];
+    }
+    pos = new_pos;
+    ins_mch = new_ins_mch;
+}
+

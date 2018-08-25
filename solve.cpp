@@ -41,7 +41,7 @@ int main() {
     const int online = 0;
     const int offline = 1;
     const int move_ins = 2;
-    int mode = 2;
+    int mode = 0;
     
     
     if (mode == offline)
@@ -54,9 +54,13 @@ int main() {
     }
     else if (mode == move_ins) {
     	map<int, int > ip;
-    	read_output_file("../submit_final_e_10800.csv", ip );
-    	transform_pos(ip,instance_machines);
-    	test_move(ip);
+    	vector<int> ins_mch = instance_machines;
+    	
+    	read_output_file("../submit_final_e_9800.csv", ip );
+    	transform_pos(ip,ins_mch);
+    	//reverse_pos(ip,ins_mch);
+    	vector<pair<int,int> > results = test_move(ip, ins_mch);
+    	write_output(results, "../submit_final_e_9800_s.csv");
     	return 0;
     }
     else {

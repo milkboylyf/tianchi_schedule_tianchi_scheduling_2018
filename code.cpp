@@ -1,12 +1,65 @@
 #include "code.h"
 
+bool constance_cmp( int &a, int &b ) {
+    return app_mem_line[instance_apps[a]][45] > app_mem_line[instance_apps[b]][45];
+}
+
+bool running_mch[10000] ={} ;
+
+void count_constance( vector<int> &pre_deploy ) {
+    Code c(machine_resources_num);
+    for (int i=1;i<=instance_deploy_num;i++) if (pre_deploy[i]!=-1) {
+        c.move(i,pre_deploy[i],true);
+    }
+    for (int i=1;i<=machine_resources_num;i++) {
+        //cout << i ;
+        vector<int> instances ;
+        for (auto t: c.m_ins[i].ins_ids) {
+            instances.push_back(t);
+        }
+        sort(instances.begin(),instances.end(),constance_cmp);
+        double cpu[ 100 ]={}, mem[ 100 ]={} ;
+        int disk=0, P=0, M=0 ,PM=0;
+        
+        int j, ct =0;
+        for (j=0;j<instances.size();j++) {
+            int flag = 1;
+            for (int t=0;t<time_len;t++) 
+                if (cpu[t]+app_cpu_line[instance_apps[instances[j]]][t] > cpu_spec[i] *0.4)
+                    flag = 0;
+            for (int t=0;t<time_len;t++) 
+                if (mem[t]+app_mem_line[instance_apps[instances[j]]][t] > mem_spec[i] *0.7)
+                    flag = 0;
+            if (disk+app_apply[instance_apps[instances[j]]] > disk_spec[i] *0.7)
+                flag = 0;
+            if (j==0&& disk_spec[i]>2000)flag =1;
+            
+            if (flag) {
+                for (int t=0;t<time_len;t++) 
+                    cpu[t] += app_cpu_line[instance_apps[instances[j]]][t];
+                for (int t=0;t<time_len;t++) 
+                    mem[t] += app_mem_line[instance_apps[instances[j]]][t];
+                disk += app_apply[instance_apps[instances[j]]];
+                instance_constance[instances[j]]=1;
+                ct ++ ;
+                //cout << " " << instances[j];
+                if(ct>=4) break;
+                running_mch[i]=1;
+            }
+        }
+        //cout <<endl;
+    }
+}
+
     int Code::get_level( int ins ) {
         int ins_app = instance_apps[ins];
         
-        //超大（静态）实例
-        if ( app_apply[ins_app] > 500 ) return 100;                  
-        if ( app_cpu_line[ins_app][0] >= 16 ) return 100;
-        //if ( app_mem_line[ins_app][0] >= 144 ) return 100; 
+        if (instance_constance[ins]) return 100;
+        
+        //超大实例
+        if ( app_apply[ins_app] > 500 ) return 4;                  
+        if ( app_cpu_line[ins_app][0] >= 16 ) return 4;
+        //if ( app_mem_line[ins_app][0] >= 16 ) return 100; 
         
         //特殊规格实例 
         //if ( app_apply[ins_app] ==167 ) return 90;
@@ -53,7 +106,7 @@
         score = 0.0;
         if (empty()) return 0.0;
         for (auto t : cpu ) {
-            score += 1+(1+ins_ids.size())*(exp( max(0.0,(double)t/cpu_spec[m_ids] - cst::b )) - 1) ;
+            score += 1+(ins_ids.size())*(exp( max(0.0,(double)t/cpu_spec[m_ids] - cst::b )) - 1) ;
         }
         return score;
     }
@@ -72,8 +125,8 @@
             || pm_lim[m_ids] < PM + app_pm[ins_app] ) 
             return false;
         for (int i=0;i<time_len;i++) 
-            if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i] +(no_inter?0:1e-7)
-                || mem_spec[m_ids] < mem[i] + app_mem_line[ins_app][i] +(no_inter?0:1e-7) ) {
+            if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i]  - 1e-8
+                || mem_spec[m_ids] < mem[i] + app_mem_line[ins_app][i] - 1e-8 ) {
                     //cout << "CPU & MEM" <<endl;
             return false;
         }
@@ -202,6 +255,11 @@
     void Code::init() {
         int ct = machine_resources_num;
         int index[instance_deploy_num+2];
+        count_constance(instance_machines);
+        vector<int> mi;
+        for (int i=1;i<=machine_resources_num;i++) if (!running_mch[i]) mi.push_back(i);
+        cout << mi.size() <<endl;
+        for (int i=1;i<=machine_resources_num;i++) if (running_mch[i]) mi.push_back(i);
         index[0]=0;
         
         //*
@@ -210,7 +268,6 @@
         }
         cout << endl;
         //*/
-        
         //srand(37124); 
         //随机化实例序列，经测试影响不大 
         for (int i=1;i<=instance_deploy_num;i++) index[i]=i;
@@ -223,22 +280,38 @@
         for (int i=1;i<=instance_deploy_num;i++) 
             if ( get_level(index[i])==100 )
         {
+            //*
+            //instance_constance[index[i]] = 1;
+            
+            if (!m_ins[instance_machines[index[i]]].add_instance(index[i],true)) {
+                cout << index[i] << " " << instance_apps[index[i]] << endl;
+                exit(0);
+            }
+            running.insert(instance_machines[index[i]]);
+            ins_pos[index[i]] = instance_machines[index[i]];
+            ins_remain[disk_index[app_apply[instance_apps[index[i]]]]]--;
+            //if (m_ins[instance_machines[index[i]]].compute_score() > 98 ) 
+            //    cout << m_ins[instance_machines[index[i]]].compute_score() << endl;
+            /*/
+            
             //cout << ct <<endl;
             assert(m_ins[ct].add_instance(index[i]));
             //m_ins[ct].set_constant(index[i]);
             running.insert(ct);
             ins_pos[index[i]] = ct--;
             ins_remain[disk_index[app_apply[instance_apps[index[i]]]]]--;
+            //*/
         }
         
         //放置disk=167的实例，每个服务器放俩，用于将一些1024的服务器填满 
         for (int i=1;i<=instance_deploy_num;i++) 
             if ( get_level(index[i])==90 && ins_pos.count(index[i])==0 )
         {
-            int tmp_m = machine_resources_num+1;
+            int tmp_m_i = machine_resources_num+1, tmp_m;
             do {
-                tmp_m --;
-                assert(tmp_m>0);
+                tmp_m_i --;
+                assert(tmp_m_i>0);
+                tmp_m = mi[tmp_m_i];
             }
             while ( (disk_spec[tmp_m]-m_ins[tmp_m].disk) % 10 == 0 
                 || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.9 > cpu_spec[tmp_m] )
@@ -256,17 +329,18 @@
                 if ( get_level(index[i])==level && ins_pos.count(index[i])==0)
             {
                 //cout << index[i] << " " << instance_apps[index[i]] << endl;
-                int tmp_m = machine_resources_num+1;
+                int tmp_m_i = machine_resources_num+1, tmp_m;
                 do {
-                    tmp_m --;
-                    assert(tmp_m>0);
+                    tmp_m_i --;
+                    assert(tmp_m_i>0);
+                    tmp_m = mi[tmp_m_i];
                 }
                 while ( 0
-                        || ( level == 4 && m_ins[tmp_m].disk >= 600 && (m_ins[tmp_m].disk/10)%2 == 0 )
-                        || ( index[i] < 20000 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +40 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -5 )
-                        || ( index[i]>= 20000 && index[i] < 67600 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +60 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -15 )
+                        //|| ( level == 4 && m_ins[tmp_m].disk >= 600 && (m_ins[tmp_m].disk/10)%2 == 0 )
+                        //|| ( index[i] < 20000 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +40 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -5 )
+                        //|| ( index[i]>= 20000 && index[i] < 67600 && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]] +60 > disk_spec[tmp_m] && m_ins[tmp_m].disk+app_apply[instance_apps[index[i]]]  < disk_spec[tmp_m] -15 )
                         //|| (m_ins[tmp_m].empty()==0 && m_ins[tmp_m].check_cpu_overload(index[i]) ) 
-                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*1.61 > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
+                        || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*(1.91+(level==4)*0.1) > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
                         //|| (((double)cpu_spec[tmp_m]/2- m_ins[tmp_m].cpu[0])/(disk_spec[tmp_m] - m_ins[tmp_m].disk)*5< (double)app_cpu_line[instance_apps[index[i]]][0] /app_apply[instance_apps[index[i]]])
                         || !m_ins[tmp_m].add_instance(index[i]) );
                 if (i%1000==0)

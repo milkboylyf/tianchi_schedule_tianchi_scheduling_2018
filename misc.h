@@ -27,4 +27,6 @@ vector<pair<int, int> > process_output2(map<int, int>& output) ;
 
 void transform_pos( map<int, int> &pos , vector<int> & ins_mch ); 
 
+void reverse_pos( map<int, int> &pos , vector<int> & ins_mch );
+
 #endif

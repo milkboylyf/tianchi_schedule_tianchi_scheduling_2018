@@ -4,6 +4,7 @@
 #include "global.h"
 #include <iostream>
 #include <assert.h>
+#include <algorithm>
 
 using namespace global;
 using namespace std;
@@ -31,6 +32,7 @@ struct MachineWithPreDeploy {
     int n_PM;
     
     set<int> ins_todo;
+    set<int> todo_turn;
     
     map<int,int> ob_apps; 
     set<int> ob_ins_ids;
@@ -55,7 +57,7 @@ struct MachineWithPreDeploy {
     
     bool empty(); 
     
-    bool spec_eval( int ins, bool is_object, bool inner = false );
+    bool spec_eval( int ins, bool is_object, bool inner = false , bool show = false);
     
     bool inter_eval( int ins, bool is_object, bool inner=false ) ;
     
@@ -66,6 +68,12 @@ struct MachineWithPreDeploy {
     bool add_instance(int ins );
     
     bool del_instance( int ins );
+    
+    bool del_new_instance( int ins );
+    
+    bool recover_instance( int ins );
+    
+    double compute_score();
     
     void print() ;
 };
@@ -81,6 +89,10 @@ struct MoveWorker {
     double u_score;
     map<int,int> ins_pos;
     map<int,int> ob_pos;
+    map<int,int> m_pos;
+    
+    vector<pair<int,int> > temp_results;
+    vector<vector<pair<int,int> > > results;
     
     MoveWorker(int _len);
     
@@ -94,17 +106,19 @@ struct MoveWorker {
     
     int move_ins_directly();
     
-    int move_ins_soft(int max_times = 1000);
+    int move_ins_soft(int max_times = 1000,double mem_th= 0.0,  bool show = false);
     
     void before_move();
     
     void after_move();
     
-    void init (map<int,int> &pos);
+    void init (map<int,int> &pos, vector<int> &ins_mch);
+    
+    double compute_score() ;
 };
 
 
-void test_move(map<int,int> &pos);
+vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch);
 
 
 #endif

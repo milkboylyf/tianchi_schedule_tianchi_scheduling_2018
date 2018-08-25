@@ -17,6 +17,8 @@ struct ParallelMergeWorker {
     
     Machine m1, m2 ;
     
+    int constant_ins_num;
+    
     int search_times ;
     
     ParallelMergeWorker(int _len) ;

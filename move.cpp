@@ -13,7 +13,43 @@ int MachineWithPreDeploy::get_apps( map<int,int> &sapps , int ins_app) {
     return sapps.count(ins_app)?sapps[ins_app]:0;
 }
 
-bool MachineWithPreDeploy::spec_eval( int ins, bool is_object , bool inner) {
+double MachineWithPreDeploy::compute_score() {
+    double score = 0;
+    for (int i=0;i<time_len;i++) {
+        score +=  max( 0.0 , mem[i] + ob_mem[i] - n_mem[i] - mem_spec[m_ids] );
+        //score += max( 0.0 , cpu[i] + ob_cpu[i] - n_cpu[i] - cpu_spec[m_ids] );
+    }
+    /*
+    score +=  max( 0,  disk + ob_disk - n_disk -disk_spec[m_ids] )
+               + max( 0, P + ob_P - n_P - p_lim[m_ids] ) *10
+                + max(0, M + ob_M - n_M - m_lim[m_ids] ) *10//there's no positive value in app_m 
+                + max(0, PM + ob_PM - n_PM - pm_lim[m_ids] ) *10;
+                
+    //set<int> total_apps;
+    //for (int t:ins_ids) if (!n_ins_ids.count(t)) total_apps.insert(instance_apps[t]);
+    //for (int t:todo_turn) total_apps.insert(instance_apps[t]);
+    
+    for (auto ins_app:ins_ids) if (!n_ins_ids.count(ins_app)) { 
+        if (app_inter_set.count(ins_app)) 
+        for (auto &t:app_inter_set[ins_app])
+            if ( (get_apps(apps, t.first) + get_apps(ob_apps, t.first) - get_apps(n_apps, t.first) ) 
+                    &&  t.second< get_apps(apps, ins_app) + get_apps(ob_apps, ins_app) - get_apps(n_apps, ins_app) ) { 
+                //    cout << "INTERFERENCE " << t.first << " " << ins_app << " " << t.second << endl;
+                score+=1000;
+        }
+        if (app_rvs_inter_set.count(ins_app)) 
+        for (auto &t:app_rvs_inter_set[ins_app])
+            if ( t.second < get_apps(apps, t.first) + get_apps(ob_apps, t.first) - get_apps(n_apps, t.first) ) {
+                //    cout << "INTERFERENCE2 " << t.first << " " << ins_app << " " << t.second << endl;
+                score+=1000;
+        }
+    }
+    */
+    
+    return score;
+}
+
+bool MachineWithPreDeploy::spec_eval( int ins, bool is_object , bool inner, bool show) {
     
     int ins_app = instance_apps[ins];
     if (is_object) {
@@ -23,22 +59,35 @@ bool MachineWithPreDeploy::spec_eval( int ins, bool is_object , bool inner) {
             || pm_lim[m_ids] < PM + app_pm[ins_app] ) 
             return false;
         for (int i=0;i<time_len;i++) 
-            if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i] + 1e-7 
-                || mem_spec[m_ids] < mem[i] + app_mem_line[ins_app][i] + 1e-7 ) {
+            if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i] - 1e-8
+                || mem_spec[m_ids] < mem[i] + app_mem_line[ins_app][i] - 1e-8 ) {
                     //cout << "CPU & MEM" <<endl;
             return false;
         }
     }
     else {
         if (inner) {
+            /*
             if ( disk_spec[m_ids] < disk + max(0, ob_disk - n_disk) 
                 || p_lim[m_ids] < P + max(0, ob_P - n_P) 
                 || m_lim[m_ids] < M + max(0, ob_M - n_M)  //there's no positive value in app_m 
                 || pm_lim[m_ids] < PM + max(0, ob_PM - n_PM) ) 
                 return false;
             for (int i=0;i<time_len;i++) 
-                if (  cpu_spec[m_ids] < cpu[i] + max(0.0, ob_cpu[i] - n_cpu[i]) + 1e-7 
-                    || mem_spec[m_ids] < mem[i] + max(0.0, ob_mem[i] - n_mem[i]) + 1e-7 ) {
+                if (  cpu_spec[m_ids] < cpu[i] + max(0.0, ob_cpu[i] - n_cpu[i]) - 1e-8 
+                    || mem_spec[m_ids] < mem[i] + max(0.0, ob_mem[i] - n_mem[i]) - 1e-8 ) {
+                        //cout << "CPU & MEM" <<endl;
+                return false;
+            }
+            */
+            if ( disk_spec[m_ids] < disk + ob_disk - n_disk 
+                || p_lim[m_ids] < P + ob_P - n_P
+                || m_lim[m_ids] < M + ob_M - n_M  //there's no positive value in app_m 
+                || pm_lim[m_ids] < PM + ob_PM - n_PM ) 
+                return false;
+            for (int i=0;i<time_len;i++) 
+                if (  cpu_spec[m_ids] < cpu[i] + ob_cpu[i] - n_cpu[i] - 1e-8 
+                    || mem_spec[m_ids] < mem[i] + ob_mem[i] - n_mem[i] - 1e-8 ) {
                         //cout << "CPU & MEM" <<endl;
                 return false;
             }
@@ -50,9 +99,13 @@ bool MachineWithPreDeploy::spec_eval( int ins, bool is_object , bool inner) {
                 || pm_lim[m_ids] < PM + max(0, ob_PM - n_PM) + app_pm[ins_app] ) 
                 return false;
             for (int i=0;i<time_len;i++) 
-                if (  cpu_spec[m_ids] < cpu[i] + max(0.0, ob_cpu[i] - n_cpu[i]) + app_cpu_line[ins_app][i] + 1e-7 
-                    || mem_spec[m_ids] < mem[i] + max(0.0, ob_mem[i] - n_mem[i]) + app_mem_line[ins_app][i] + 1e-7 ) {
+                if (  cpu_spec[m_ids] < cpu[i] + max(0.0, ob_cpu[i] - n_cpu[i]) + app_cpu_line[ins_app][i] - 1e-8 
+                    || mem_spec[m_ids] < mem[i] + max(0.0, ob_mem[i] - n_mem[i]) + app_mem_line[ins_app][i] - 1e-8 ) {
                         //cout << "CPU & MEM" <<endl;
+                if (show ) {
+                    cout << cpu_spec[m_ids] - (cpu[i] + max(0.0, ob_cpu[i] - n_cpu[i]) + app_cpu_line[ins_app][i] )
+                     << " " << mem_spec[m_ids] - (mem[i] + max(0.0, ob_mem[i] - n_mem[i]) + app_mem_line[ins_app][i] ) << endl; 
+                }
                 return false;
             }
         }
@@ -79,21 +132,20 @@ bool MachineWithPreDeploy::inter_eval( int ins, bool is_object, bool inner ) {
         }
     }
     else {
-        //if (inner) {
+        if (inner) {
             if (app_inter_set.count(ins_app)) 
             for (auto &t:app_inter_set[ins_app])
-                if ( (get_apps(apps, t.first) + max(0, get_apps(ob_apps, t.first) - get_apps(n_apps, t.first)) ) 
-                        &&  t.second<=get_apps(apps, ins_app) + max(0, get_apps(ob_apps, ins_app) - get_apps(n_apps, ins_app)) - inner ) { 
+                if ( (get_apps(apps, t.first) + get_apps(ob_apps, t.first) - get_apps(n_apps, t.first) ) 
+                        &&  t.second< get_apps(apps, ins_app) + get_apps(ob_apps, ins_app) - get_apps(n_apps, ins_app) ) { 
                     //    cout << "INTERFERENCE " << t.first << " " << ins_app << " " << t.second << endl;
                     return false;
             }
             if (app_rvs_inter_set.count(ins_app)) 
             for (auto &t:app_rvs_inter_set[ins_app])
-                if ( t.second < get_apps(apps, t.first) + max(0, get_apps(ob_apps, t.first) - get_apps(n_apps, t.first)) ) {
+                if ( t.second < get_apps(apps, t.first) + get_apps(ob_apps, t.first) - get_apps(n_apps, t.first) ) {
                     //    cout << "INTERFERENCE2 " << t.first << " " << ins_app << " " << t.second << endl;
                     return false;
             }
-        /*
         }
         else {
             if (app_inter_set.count(ins_app)) 
@@ -110,7 +162,7 @@ bool MachineWithPreDeploy::inter_eval( int ins, bool is_object, bool inner ) {
                     return false;
             }
         }
-        */
+        
     }
     return true;
 }
@@ -120,6 +172,7 @@ bool MachineWithPreDeploy::add_object_instance( int ins ) {
     int ins_app = instance_apps[ins];
     
     ob_apps[ins_app]++;
+    assert(!ob_ins_ids.count(ins));
     ob_ins_ids.insert(ins);
     
     for (int i=0;i<time_len;i++) { 
@@ -138,6 +191,10 @@ bool MachineWithPreDeploy::add_instance( int ins ) {
     
     int ins_app = instance_apps[ins];
     
+    if (ins_ids.count(ins)) {
+        cout << ins << " " << instance_ids[ins] << " " << m_ids << endl;
+        exit(0);
+    }
     ins_ids.insert(ins);
     apps[ins_app]++;
     
@@ -152,8 +209,12 @@ bool MachineWithPreDeploy::add_instance( int ins ) {
     
     if (ob_ins_ids.count(ins)) {
         del_object_instance(ins);
+        //cout<< ins <<endl;
     }
-    else ins_todo.insert(ins);
+    else {
+        assert(!todo_turn.count(ins));
+        todo_turn.insert(ins);
+    }
     
     return true;
 }
@@ -162,6 +223,7 @@ bool MachineWithPreDeploy::del_object_instance( int ins ) {
     
     int ins_app = instance_apps[ins];
     
+    assert(ob_ins_ids.count(ins));
     ob_ins_ids.erase(ins);
     ob_apps[ins_app]--;
     if (ob_apps[ins_app] == 0) ob_apps.erase(ins_app);
@@ -182,9 +244,9 @@ bool MachineWithPreDeploy::del_instance( int ins ) {
     
     int ins_app = instance_apps[ins];
     
+    assert(!n_ins_ids.count(ins));
     n_ins_ids.insert(ins);
     n_apps[ins_app]++;
-    if (n_apps[ins_app] == 0) n_apps.erase(ins_app);
     
     for (int i=0;i<time_len;i++) {
         n_cpu[i] += app_cpu_line[ins_app][i];
@@ -198,9 +260,56 @@ bool MachineWithPreDeploy::del_instance( int ins ) {
     return true;
 }
 
+
+bool MachineWithPreDeploy::del_new_instance( int ins ) {
+    
+    int ins_app = instance_apps[ins];
+    
+    assert(ins_ids.count(ins)&&todo_turn.count(ins));
+    ins_ids.erase(ins);
+    todo_turn.erase(ins);
+    apps[ins_app]--;
+    
+    if (apps[ins_app] == 0) apps.erase(ins_app);
+    
+    for (int i=0;i<time_len;i++) {
+        cpu[i] -= app_cpu_line[ins_app][i];
+        mem[i] -= app_mem_line[ins_app][i];
+    }
+    disk -= app_apply[ins_app] ;
+    P -= app_p[ins_app];
+    M -= app_m[ins_app];                 //there's no positive value in app_m 
+    PM -= app_pm[ins_app]; 
+    
+    return true;
+}
+
+bool MachineWithPreDeploy::recover_instance( int ins ) {
+    
+    int ins_app = instance_apps[ins];
+    
+    assert(n_ins_ids.count(ins));
+    n_ins_ids.erase(ins);
+    n_apps[ins_app]--;
+    
+    if (n_apps[ins_app] == 0) n_apps.erase(ins_app);
+    
+    for (int i=0;i<time_len;i++) {
+        n_cpu[i] -= app_cpu_line[ins_app][i];
+        n_mem[i] -= app_mem_line[ins_app][i];
+    }
+    n_disk -= app_apply[ins_app] ;
+    n_P -= app_p[ins_app];
+    n_M -= app_m[ins_app];                 //there's no positive value in app_m 
+    n_PM -= app_pm[ins_app]; 
+    
+    return true;
+}
+
 void MachineWithPreDeploy::before_move() {
     n_apps.clear();
     n_ins_ids.clear();
+    todo_turn.clear();
     for (int i=0;i<time_len;i++) {
         n_cpu[i] = n_mem[i] = 0;
     }
@@ -229,11 +338,25 @@ void MachineWithPreDeploy::after_move() {
     P -= n_P;
     M -= n_M;
     PM -= n_PM;
+    for (auto &t : todo_turn )
+        ins_todo.insert(t);
 }
 
 void MachineWithPreDeploy::print() {
     cout << disk << " " << P << " " << M << " " << PM << " " << m_ids << endl;
     for (auto t: ins_ids ) {
+        cout << t << ":" << instance_apps[t] << " ";
+    }
+    cout << endl;
+    for (auto t: n_ins_ids ) {
+        cout << t << ":" << instance_apps[t] << " ";
+    }
+    cout << endl;
+    for (auto t: ins_todo ) {
+        cout << t << ":" << instance_apps[t] << " ";
+    }
+    cout << endl;
+    for (auto t: todo_turn ) {
         cout << t << ":" << instance_apps[t] << " ";
     }
     cout << endl;
@@ -270,7 +393,12 @@ void MoveWorker::before_move() {
 }
 
 void MoveWorker::after_move() {
-    for (int i=1;i<=len;i++) m_ins[i].after_move(); 
+    for (int i=1;i<=len;i++) {
+        for (auto t: m_ins[i].todo_turn) {
+            ins_pos[t] = i; 
+        } 
+        m_ins[i].after_move();
+    }
 }
 
 int MoveWorker::move_ins_with_conflicts() {
@@ -280,8 +408,9 @@ int MoveWorker::move_ins_with_conflicts() {
         MachineWithPreDeploy &m = m_ins[i];
         //cout << m.ins_todo.size() <<endl;
         for (int t : m.ins_todo) { 
-            if ( !m.inter_eval(t,false,true) ) {
+            if ( !m.n_ins_ids.count(t) && !m.inter_eval(t,false,true) ) {
                 int ob = ob_pos[t];
+                assert( ob != i );
                 if (!m_ins[ob].inter_eval(t,true)) {
                     flag |= 2;
                     a_inter ++;
@@ -293,6 +422,7 @@ int MoveWorker::move_ins_with_conflicts() {
                 else {
                     m_ins[ob].add_instance(t);
                     m_ins[i].del_instance(t);
+                    temp_results.push_back(make_pair(t,ob));
                     flag |= 4;
                     a_pass++;
                 }
@@ -318,6 +448,7 @@ int MoveWorker::move_ins_with_conflicts_soft() {
                     if ( m_ins[ob].inter_eval(t,false) && m_ins[ob].spec_eval(t,false)) {
                         m_ins[ob].add_instance(t);
                         m_ins[i].del_instance(t);
+                        temp_results.push_back(make_pair(t,ob));
                         tmp = 1;
                         break;
                     }
@@ -352,6 +483,7 @@ int MoveWorker::move_ins_directly() {
                 else {
                     m_ins[ob].add_instance(t);
                     m_ins[i].del_instance(t);
+                    temp_results.push_back(make_pair(t,ob));
                     flag |= 4;
                     a_pass++;
                 }
@@ -362,7 +494,7 @@ int MoveWorker::move_ins_directly() {
     return flag;
 }
 
-int MoveWorker::move_ins_soft( int max_times ) {
+int MoveWorker::move_ins_soft( int max_times , double mem_th, bool show) {
     
     int flag = 0;
     int a_inter = 0, a_spec = 0, a_pass = 0;
@@ -370,7 +502,7 @@ int MoveWorker::move_ins_soft( int max_times ) {
         MachineWithPreDeploy &m = m_ins[i];
         //cout << m.ins_todo.size() <<endl;
         for (int t : m.ins_todo) { 
-            if ( !m.n_ins_ids.count(t) && !m.spec_eval(t,false,true) ) {
+            if ( app_mem_line[instance_apps[t]][0]>mem_th && !m.n_ins_ids.count(t) && !m.spec_eval(t,false,true) ) {
                 int tmp =0, times;
                 for ( times= 0; times <=max_times; times ++ ) {
                     int ob = (rand()%len)+1;
@@ -378,13 +510,17 @@ int MoveWorker::move_ins_soft( int max_times ) {
                     if ( m_ins[ob].inter_eval(t,false) && m_ins[ob].spec_eval(t,false)) {
                         m_ins[ob].add_instance(t);
                         m_ins[i].del_instance(t);
+                        temp_results.push_back(make_pair(t,ob));
                         tmp = 1;
                         break;
                     }
                 }
                 //cout << times << " " << i << endl;
                 if (tmp) a_pass ++;
-                else a_inter ++;
+                else {
+                    if (show) cout << t << ":" << instance_apps[t] << endl;
+                    a_inter ++;
+                }
             }
         }
     }
@@ -392,110 +528,17 @@ int MoveWorker::move_ins_soft( int max_times ) {
     return a_inter>0;
 }
 
-void MoveWorker::init(map<int,int> &pos) {
+void MoveWorker::init(map<int,int> &pos, vector<int> &ins_mch) {
+    before_move();
     set_object_pos( pos );
-    set_base_pos( instance_machines );
+    set_base_pos( ins_mch );
+    after_move();
 }
 
-void test_move(map<int,int> &pos) {
-    MoveWorker mw(machine_resources_num);
-    
-    mw.init(pos);
-    
-    int test_ins = 4031;
-    mw.m_ins[test_ins].print();
-    
-    
-    mw.before_move();
-    
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    
-    cout << mw.move_ins_with_conflicts() << endl;
-    cout << mw.move_ins_directly() <<endl;
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].n_ins_ids.count(t) && !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    cout << mw.move_ins_with_conflicts_soft() <<endl;
-    cout << mw.move_ins_soft() <<endl;
-    mw.after_move();
-    
-    cout << "#############" <<endl;
-    mw.before_move();
-    
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    
-    cout << mw.move_ins_with_conflicts() << endl;
-    cout << mw.move_ins_directly() <<endl;
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].n_ins_ids.count(t) && !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    cout << mw.move_ins_with_conflicts_soft() <<endl;
-    cout << mw.move_ins_soft(3000) <<endl;
-    mw.after_move();
-    cout << "#############" <<endl;
-    mw.before_move();
-    
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    
-    cout << mw.move_ins_with_conflicts() << endl;
-    cout << mw.move_ins_directly() <<endl;
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].n_ins_ids.count(t) && !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    cout << mw.move_ins_with_conflicts_soft() <<endl;
-    cout << mw.move_ins_soft(10000) <<endl;
-    mw.after_move();
-    cout << "#############" <<endl;
-    mw.before_move();
-    
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    
-    cout << mw.move_ins_with_conflicts() << endl;
-    cout << mw.move_ins_directly() <<endl;
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].n_ins_ids.count(t) && !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    cout << mw.move_ins_with_conflicts_soft() <<endl;
-    cout << mw.move_ins_soft() <<endl;
-    mw.after_move();
-    cout << "#############" <<endl;
-    mw.before_move();
-    
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    
-    cout << mw.move_ins_with_conflicts() << endl;
-    cout << mw.move_ins_directly() <<endl;
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].n_ins_ids.count(t) && !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    cout << mw.move_ins_with_conflicts_soft() <<endl;
-    cout << mw.move_ins_soft() <<endl;
-    mw.after_move();
-    cout << "#############" <<endl;
-    mw.before_move();
-    
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    
-    cout << mw.move_ins_with_conflicts() << endl;
-    cout << mw.move_ins_directly() <<endl;
-    //for (int t : mw.m_ins[test_ins].ins_todo) 
-    //    if ( !mw.m_ins[test_ins].n_ins_ids.count(t) && !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
-    //cout << endl;
-    cout << mw.move_ins_with_conflicts_soft() <<endl;
-    cout << mw.move_ins_soft() <<endl;
-    mw.after_move();
-    
+double MoveWorker::compute_score() {
+    double score =0;
+    for (int i=1;i<=len;i++) {
+        score += m_ins[i].compute_score();
+    }
+    return score;
 }
-
