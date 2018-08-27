@@ -16,7 +16,7 @@ int main() {
             "../data_preliminary/scheduling_preliminary_app_interference_20180606.csv",
             "../dataset/job_info.e.csv");
             */
-    //*
+    /*
     read_data(
             "../data_preliminary/scheduling_preliminary_b_instance_deploy_20180726.csv",
             "../data_preliminary/scheduling_preliminary_b_app_resources_20180726.csv",
@@ -26,7 +26,7 @@ int main() {
             //*/
        
     string input_num = "e";     
-    /*
+    //*
     read_data(
             "../dataset/instance_deploy."+input_num+".csv",
             "../dataset/app_resources.csv",
@@ -41,26 +41,25 @@ int main() {
     const int online = 0;
     const int offline = 1;
     const int move_ins = 2;
-    int mode = 1;
+    int mode = 2;
     
     
     if (mode == offline)
     {
     	map<int, int > ip;
-    	read_output_file("../submit_b_605109_s.csv", ip);
+    	read_output_file("../submit_final_b_4396.csv", ip);
     	vector<tuple<int, int, int> > job_pt;
-    	offline_scheduling(ip, job_pt, 900);
+    	offline_scheduling(ip, job_pt, 132);
+    	write_offline_result("../submit_final_b_4396_offline.csv",job_pt);
         return 0;
     }
     else if (mode == move_ins) {
     	map<int, int > ip;
     	vector<int> ins_mch = instance_machines;
     	
-    	read_output_file("../submit_final_e_9800.csv", ip );
-    	transform_pos(ip,ins_mch);
-    	//reverse_pos(ip,ins_mch);
-    	vector<pair<int,int> > results = test_move(ip, ins_mch);
-    	write_output(results, "../submit_final_e_9800_s.csv");
+    	read_output_file("../submit_final_e_.csv", ip );
+    	vector<vector<pair<int,int> > > results = test_move(ip, ins_mch);
+    	write_output_turn(results, "../submit_final_tmp_s.csv");
     	return 0;
     }
     else {

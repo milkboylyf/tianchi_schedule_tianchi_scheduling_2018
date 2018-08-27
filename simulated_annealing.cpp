@@ -24,10 +24,10 @@ void simulated_annealing (double end_time) {
 	
 	//MergeWorker a(machine_resources_num);
 	
-	/*
+	//*
 	map<int, int > ip;
 	
-	read_output_file("../submit_b_605109_s.csv", ip );
+	read_output_file("../submit_final_e_8330.csv", ip );
 	
 	coder.restore_pos(ip);
 	

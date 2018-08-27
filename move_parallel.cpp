@@ -225,12 +225,196 @@ void ParallelMoveWorker::clear_machine( MachineWithPreDeploy &m ) {
     }
 }
 
+double fedges[MAX_N][MAX_N]={};
 
+vector<int> get_matches( Code &c , Code &origin_c ) {
+    set<int> s1[10000], s2[10000];
+    for (int i=1;i<=machine_resources_num;i++) {
+        for (int t :c.m_ins[i].ins_ids) {
+            s1[instance_apps[t]].insert(i);
+        }
+        for (int t :origin_c.m_ins[i].ins_ids) {
+            s2[instance_apps[t]].insert(i);
+        }
+    }
+    //mincostflow mcf;
+    map<pair<int,int>, double> edges; 
+    
+    for (int i=1;i<=app_resources_num;i++) {
+        for (int t1:s1[i]) {
+            for (int t2:s2[i]) if ( ((t1>small_num)==(t2>small_num))) {
+                assert(c.m_ins[t1].apps.count(i));
+                assert(origin_c.m_ins[t2].apps.count(i));
+                //edges[make_pair(t1,t2)] 
+                fedges[t1][t2]
+                        += (app_mem_line[i][45]*min(c.m_ins[t1].apps[i],origin_c.m_ins[t2].apps[i]));
+            }
+        }
+        /*
+        if (app_inter_set.count(i))                           
+        for (auto &t:app_inter_set[i]) {
+            for (int t1:s1[i]) {
+                for (int t2:s2[t.first]) {
+                    int d1 = c.m_ins[t1].apps.count(i);
+                    int d2 = c.m_ins[t1].apps.count(t.first);
+                    int d3 = origin_c.m_ins[t2].apps.count(i);
+                    int d4 = origin_c.m_ins[t2].apps.count(t.first);
+                    fedges[t1][t2] += max(0,max(d1,d3)-t.second)*2;
+                }
+            }
+        }
+        if (app_rvs_inter_set.count(i)) 
+        for (auto &t:app_rvs_inter_set[i]) {
+            for (int t1:s1[i]) {
+                for (int t2:s2[t.first]) {
+                    int d1 = c.m_ins[t1].apps.count(i);
+                    int d2 = c.m_ins[t1].apps.count(t.first);
+                    int d3 = origin_c.m_ins[t2].apps.count(i);
+                    int d4 = origin_c.m_ins[t2].apps.count(t.first);
+                    fedges[t1][t2] += max(0,max(d2,d4)-t.second)*2;
+                }
+            }
+        }
+        if (i%10==0) cout << i <<endl; 
+        */
+    }
+    
+    //mcf.resetFlow(machine_resources_num);
+    
+    /* 
+    for (auto &t:edges) {
+        mcf.newEdge(t.first.first,t.first.second+machine_resources_num,1,t.second);
+    } 
+    //
+    for (int i =1;i<=8000;i++)
+    for (int j=1;j<=8000;j++) {
+        mcf.newEdge(i,j+machine_resources_num,1,fedges[i][j]);
+    }
+    
+    for (int i=1;i<=machine_resources_num;i++) {
+        mcf.newEdge(machine_resources_num*2+1,i,1,0.0);
+        mcf.newEdge(i+machine_resources_num,machine_resources_num*2+2,1,0.0);
+    }
+    mcf.findNewFlows();
+    mcf.plotTrace(mcf.n-1,machine_resources_num);
+    
+    //*/
+    
+    for (int i =1;i<=8000;i++) {
+        for (int j=1;j<=8000;j++) 
+        if ((i>small_num)==(j>small_num))
+        {
+            fedges[i][j] = exp(-min(0.0, fedges[i][j] - (c.m_ins[i].cpu[45] + origin_c.m_ins[j].cpu[45]))/10.0);
+            //fedges[i][j] = max(0.0, 
+            //                    (c.m_ins[i].cpu[45] + origin_c.m_ins[j].cpu[45]
+            //                    - fedges[i][j] - cpu_spec[i]));
+        }
+        else {
+            fedges[i][j] = INF;
+        }
+        //if (i%100==0) cout << i << endl;
+    }
+    
+    KM_Match km;
+    km.reset(8000,6000,fedges);
+    
+    //map<int, int> results;
+    cout << "#################" <<endl;
+    return km.KM();
+}
 
+void transform_pos( map<int, int> &pos , vector<int> & ins_mch ) {
+    int result[200000];
+    for (auto &t:pos) result[t.first] = t.second;
+    Code c(machine_resources_num);
+    for (int i=1;i<=instance_deploy_num;i++) if ( ins_mch[i] !=-1 ){
+        c.move(i,ins_mch[i]);
+    }
+    for (int i=1;i<=instance_deploy_num;i++) {
+        int ob = result[i];
+        if (!c.m_ins[ob].ins_ids.count(i))
+        for (int r : c.m_ins[ob].ins_ids) 
+            if (instance_apps[i] == instance_apps[r]) {
+            if (result[r]!=ob) {
+                int tmp = result[r];
+                result[r] = ob;
+                result[i] = tmp;
+                break;
+            }
+        }
+    }
+    pos.clear();
+    for (int i=1;i<=instance_deploy_num;i++) pos[i] = result[i];
+}
 
+void reverse_pos( map<int, int> &pos , vector<int> & ins_mch ) {
+    map<int, int> new_pos ;
+    vector<int> new_ins_mch;
+    for (int i=0;i<=instance_deploy_num;i++) new_ins_mch.push_back(-1);
+    for (int i=1;i<=instance_deploy_num;i++) {
+        assert(ins_mch[i]!=-1);
+        assert(pos[i]);
+        new_pos[i] = ins_mch[i];
+        new_ins_mch[i] = pos[i];
+    }
+    pos = new_pos;
+    ins_mch = new_ins_mch;
+}
 
-vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch) {
+vector<vector<pair<int,int> > > test_move(map<int,int> &pos, vector<int> &ins_mch) {
+    //*
+    Code c(machine_resources_num);
+    Code origin_c(machine_resources_num);
+    for (auto &t:pos) {
+        c.move(t.first,t.second); 
+    }
+    
+    //for (int i=1;i<=6000;i++) 
+    //cout << c.m_ins[i].ins_ids.size() <<endl;
+    //exit(0);
+    
+    for (int i =1;i<=instance_deploy_num;i++) {
+        origin_c.move(i,ins_mch[i]); 
+    }
+    vector<int> trs = get_matches(c,origin_c);
+    int trans[10000], reverse[10000];
+    /*
+    for (int i=1;i<=machine_resources_num;i++) trans[i] = i, reverse[i] = i;
+    for (auto &a:O) {
+        //if (a[0]>14000)
+        //cout << a[1] << " " << a[0]-8000 << endl; 
+        int tmp_a = a[1], tmp_b = reverse[a[0]-8000];
+        if (tmp_a!=tmp_b) {
+            swap(trans[tmp_a],trans[tmp_b]);
+            reverse[trans[tmp_a]]=tmp_a;
+            reverse[trans[tmp_b]]=tmp_b;
+        }
+    }
+    cout << O.size() <<endl;
+    */
+    
+    
+    for (int i=1;i<=8000;i++) {
+        assert(((trs[i]>6000)==(i>6000)));
+        for (int j=1;j<=8000;j++) {
+            assert(i==j||trs[i]!=trs[j]);
+        }
+    }
+    
+    
+    map<int,int> new_pos;
+    for (auto &t:pos) {
+        new_pos[t.first] = trs[t.second];
+    }
+    
+    pos = new_pos;
+    //*/
+    transform_pos(pos,ins_mch);
+    //reverse_pos(pos,ins_mch);
+    
     MoveWorker mw(machine_resources_num);
+    
+    vector<vector<pair<int,int> > > result;
     
     mw.init(pos, ins_mch);
     
@@ -247,18 +431,21 @@ vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch) {
     //cout << endl;
     
     cout << mw.move_ins_with_conflicts() << endl;
+    cout << mw.move_ins_soft_cpu(100000,40) <<endl;
     cout << mw.move_ins_directly() <<endl;
     //for (int t : mw.m_ins[test_ins].ins_todo) 
     //    if ( !mw.m_ins[test_ins].n_ins_ids.count(t) && !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
     //cout << endl;
     
-    cout << mw.move_ins_soft(100000,30,true) <<endl;
+    cout << mw.move_ins_soft(100000,35) <<endl;
+    cout << mw.move_ins_soft(100000,30) <<endl;
+    cout << mw.move_ins_soft(1000,30) <<endl;
     cout << mw.move_ins_with_conflicts_soft() <<endl;
     cout << mw.move_ins_soft(500) <<endl;
-    cout << mw.move_ins_soft(500) <<endl;
-    cout << mw.move_ins_soft(500) <<endl;
-    cout << mw.move_ins_soft(500) <<endl;
-    cout << mw.move_ins_soft(500) <<endl;
+    //cout << mw.move_ins_soft(500) <<endl;
+    //cout << mw.move_ins_soft(500) <<endl;
+    //cout << mw.move_ins_soft(500) <<endl;
+    //cout << mw.move_ins_soft(500) <<endl;
     
     int counter = 0;
     double t_score = 1e8;
@@ -291,6 +478,7 @@ vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch) {
     //cout << mw.move_ins_with_conflicts_soft() <<endl;
     //cout << mw.move_ins_soft() <<endl;
     mw.after_move();
+    result.push_back(mw.temp_results);
     
     cout << "#############" <<endl;
     mw.before_move();
@@ -305,8 +493,11 @@ vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch) {
     //    if ( !mw.m_ins[test_ins].n_ins_ids.count(t) && !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
     //cout << endl;
     
+    cout << mw.move_ins_soft(100000,38) <<endl;
+    cout << mw.move_ins_soft(100000,30,true) <<endl;
+    cout << mw.move_ins_soft(1000,15) <<endl;
     cout << mw.move_ins_with_conflicts_soft() <<endl;
-    cout << mw.move_ins_soft(100000,0.0,true) <<endl;
+    cout << mw.move_ins_soft(3000,0.0) <<endl;
     
     /*
     counter = 0;
@@ -337,7 +528,10 @@ vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch) {
     //*/
     
     mw.after_move();
+    result.push_back(mw.temp_results);
     cout << "#############" <<endl;
+    
+    
     mw.before_move();
     
     //for (int t : mw.m_ins[test_ins].ins_todo) 
@@ -352,6 +546,7 @@ vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch) {
     cout << mw.move_ins_with_conflicts_soft() <<endl;
     cout << mw.move_ins_soft(10000) <<endl;
     mw.after_move();
+    result.push_back(mw.temp_results);
     cout << "#############" <<endl;
     mw.before_move();
     
@@ -367,7 +562,10 @@ vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch) {
     cout << mw.move_ins_with_conflicts_soft() <<endl;
     cout << mw.move_ins_soft() <<endl;
     mw.after_move();
+    result.push_back(mw.temp_results);
     cout << "#############" <<endl;
+    
+    
     mw.before_move();
     
     //for (int t : mw.m_ins[test_ins].ins_todo) 
@@ -382,7 +580,10 @@ vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch) {
     cout << mw.move_ins_with_conflicts_soft() <<endl;
     cout << mw.move_ins_soft() <<endl;
     mw.after_move();
+    result.push_back(mw.temp_results);
     cout << "#############" <<endl;
+    
+    
     mw.before_move();
     
     //for (int t : mw.m_ins[test_ins].ins_todo) 
@@ -397,8 +598,9 @@ vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch) {
     cout << mw.move_ins_with_conflicts_soft() <<endl;
     cout << mw.move_ins_soft() <<endl;
     mw.after_move();
+    result.push_back(mw.temp_results);
     
-    return mw.temp_results;
+    return result;
     
 }
 

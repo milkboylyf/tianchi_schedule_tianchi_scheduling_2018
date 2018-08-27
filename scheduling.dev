@@ -4,14 +4,14 @@ Name=scheduling
 Type=1
 Ver=2
 ObjFiles=
-Includes=
+Includes=C:\D\work\xiamenairline\lemon-1.3.1\
 Libs=
 PrivateResource=
 ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=
+Linker=../../../work/xiamenairline/lemon-1.3.1/lemon/liblemon.a_@@_
 IsCpp=1
 Icon=
 ExeOutput=bin
@@ -27,9 +27,9 @@ CommandLine=
 Folders=include,source
 IncludeVersionInfo=0
 SupportXPThemes=0
-CompilerSet=13
-CompilerSettings=0000000000000000001000000
-UnitCount=32
+CompilerSet=12
+CompilerSettings=0000000000000000000000000
+UnitCount=34
 
 [VersionInfo]
 Major=1
@@ -362,6 +362,26 @@ BuildCmd=
 
 [Unit32]
 FileName=move_parallel.h
+CompileCpp=1
+Folder=include
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit33]
+FileName=match.cpp
+CompileCpp=1
+Folder=source
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit34]
+FileName=match.h
 CompileCpp=1
 Folder=include
 Compile=1

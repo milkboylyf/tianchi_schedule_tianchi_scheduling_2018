@@ -389,6 +389,7 @@ MoveWorker::MoveWorker(int _len):len(_len),u_score(0){
 }
 
 void MoveWorker::before_move() {
+    temp_results.clear();
     for (int i=1;i<=len;i++) m_ins[i].before_move(); 
 }
 
@@ -411,12 +412,12 @@ int MoveWorker::move_ins_with_conflicts() {
             if ( !m.n_ins_ids.count(t) && !m.inter_eval(t,false,true) ) {
                 int ob = ob_pos[t];
                 assert( ob != i );
-                if (!m_ins[ob].inter_eval(t,true)) {
-                    flag |= 2;
+                if (!m_ins[ob].spec_eval(t,true)) {
+                    flag |= 1;
                     a_inter ++;
                 }
-                else if (!m_ins[ob].spec_eval(t,true)) {
-                    flag |= 1;
+                else if (!m_ins[ob].inter_eval(t,true)) {
+                    flag |= 2;
                     a_spec++;
                 }
                 else {
@@ -436,13 +437,13 @@ int MoveWorker::move_ins_with_conflicts() {
 int MoveWorker::move_ins_with_conflicts_soft() {
     int flag = 0;
     int a_inter = 0, a_spec = 0, a_pass = 0;
-    for (int i=1;i<=len;i++) {
+    for (int i=len;i>0;i--) {
         MachineWithPreDeploy &m = m_ins[i];
         //cout << m.ins_todo.size() <<endl;
         for (int t : m.ins_todo) { 
             if ( !m.n_ins_ids.count(t) && !m.inter_eval(t,false,true) ) {
                 int tmp =0, times;
-                for ( times= 0; times <=i/2+10; times ++ ) {
+                for ( times= 0; times <=(machine_resources_num-i)/10+1000; times ++ ) {
                     int ob = (rand()%len)+1;
                     if ( ob == i || ob == ob_pos[t] ) continue;
                     if ( m_ins[ob].inter_eval(t,false) && m_ins[ob].spec_eval(t,false)) {
@@ -472,12 +473,12 @@ int MoveWorker::move_ins_directly() {
         for (int t : m.ins_todo) { 
             if ( !m.n_ins_ids.count(t) && m.inter_eval(t,false,true) ) {
                 int ob = ob_pos[t];
-                if (!m_ins[ob].inter_eval(t,true)) {
-                    flag |= 2;
+                if (!m_ins[ob].spec_eval(t,true)) {
+                    flag |= 1;
                     a_inter ++;
                 }
-                else if (!m_ins[ob].spec_eval(t,true)) {
-                    flag |= 1;
+                else if (!m_ins[ob].inter_eval(t,true)) {
+                    flag |= 2;
                     a_spec++;
                 }
                 else {
@@ -492,6 +493,40 @@ int MoveWorker::move_ins_directly() {
     }
     cout << a_inter << " " << a_spec << " " << a_pass << endl;
     return flag;
+}
+
+int MoveWorker::move_ins_soft_cpu( int max_times , double cpu_th, bool show) {
+    
+    int flag = 0;
+    int a_inter = 0, a_spec = 0, a_pass = 0;
+    for (int i=1;i<=len;i++) {
+        MachineWithPreDeploy &m = m_ins[i];
+        //cout << m.ins_todo.size() <<endl;
+        for (int t : m.ins_todo) { 
+            if ( app_cpu_line[instance_apps[t]][0]>cpu_th && !m.n_ins_ids.count(t) && !m.spec_eval(t,false,true) ) {
+                int tmp =0, times;
+                for ( times= 0; times <=max_times; times ++ ) {
+                    int ob = (rand()%len)+1;
+                    if ( ob == i || ob == ob_pos[t] ) continue;
+                    if ( m_ins[ob].inter_eval(t,false) && m_ins[ob].spec_eval(t,true)) {
+                        m_ins[ob].add_instance(t);
+                        m_ins[i].del_instance(t);
+                        temp_results.push_back(make_pair(t,ob));
+                        tmp = 1;
+                        break;
+                    }
+                }
+                //cout << times << " " << i << endl;
+                if (tmp) a_pass ++;
+                else {
+                    if (show) cout << t << ":" << instance_apps[t] << endl;
+                    a_inter ++;
+                }
+            }
+        }
+    }
+    cout << a_inter << " " << a_spec << " " << a_pass << endl;
+    return a_inter>0;
 }
 
 int MoveWorker::move_ins_soft( int max_times , double mem_th, bool show) {

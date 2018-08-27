@@ -108,6 +108,8 @@ struct MoveWorker {
     
     int move_ins_soft(int max_times = 1000,double mem_th= 0.0,  bool show = false);
     
+    int move_ins_soft_cpu(int max_times = 1000,double mem_th= 0.0,  bool show = false);
+    
     void before_move();
     
     void after_move();
@@ -118,7 +120,7 @@ struct MoveWorker {
 };
 
 
-vector<pair<int,int> > test_move(map<int,int> &pos, vector<int> &ins_mch);
+vector<vector<pair<int,int> > > test_move(map<int,int> &pos, vector<int> &ins_mch);
 
 
 #endif

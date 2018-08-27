@@ -253,6 +253,17 @@ void write_output(const vector<pair<int, int> >& output, string file_name) {
     f.close();
 }
 
+void write_output_turn(const vector<vector<pair<int, int> > >& output, string file_name) {
+    ofstream f;
+    f.open (file_name, ios::trunc);
+    for (int i=0;i<3;i++) {
+        for(auto& p: output[i]) {
+            f << i+1 << ",inst_" << instance_ids[p.first] << ",machine_" << p.second << endl;
+        }
+    }
+    f.close();
+}
+
 void write_output_origin(const map<int, int>& output, string file_name) {
     ofstream f;
     f.open (file_name, ios::trunc);
@@ -296,7 +307,7 @@ void check_output(const map<int, int>& output) {
             if(tmp_sum[i] > cpu_spec[it->first] + EPS) {
                 check_result = flag = false;
             }
-            score += cst::a*exp( max(0.0,(double)tmp_sum[i]/cpu_spec[it->first] - cst::b )) - 9 ;
+            score += 1+(it->second.size()+1)*(exp( max(0.0,(double)tmp_sum[i]/cpu_spec[it->first] - cst::b )) - 1) ;
         }
     }
     check_log(flag, "cpu limit");
@@ -421,40 +432,12 @@ void check_output_file(string output_file_name) {
     c.show_extra_info();
 }
 
-void transform_pos( map<int, int> &pos , vector<int> & ins_mch ) {
-    int result[100000];
-    for (auto &t:pos) result[t.first] = t.second;
-    Code c(machine_resources_num);
-    for (int i=1;i<=instance_deploy_num;i++) if ( ins_mch[i] !=-1 ){
-        c.move(i,ins_mch[i]);
+void write_offline_result(string file_name , vector<tuple<int,int,int> > &result) {
+    ofstream f;
+    f.open (file_name, ios::trunc);
+    for(auto& p: result) {
+        f   << job_res[get<0>(p)].name << ",machine_" << get<1>(p)
+            << "," << get<2>(p) << "," << 1 << endl;
     }
-    for (int i=1;i<=instance_deploy_num;i++) {
-        int ob = result[i];
-        if (!c.m_ins[ob].ins_ids.count(i))
-        for (int r : c.m_ins[ob].ins_ids) if (instance_apps[i] == instance_apps[r]) {
-            if (result[r]!=ob) {
-                int tmp = result[r];
-                result[r] = ob;
-                result[i] = tmp;
-                break;
-            }
-        }
-    }
-    pos.clear();
-    for (int i=1;i<=instance_deploy_num;i++) pos[i] = result[i];
+    f.close();
 }
-
-void reverse_pos( map<int, int> &pos , vector<int> & ins_mch ) {
-    map<int, int> new_pos ;
-    vector<int> new_ins_mch;
-    for (int i=0;i<=instance_deploy_num;i++) new_ins_mch.push_back(-1);
-    for (int i=1;i<=instance_deploy_num;i++) {
-        assert(ins_mch[i]!=-1);
-        assert(pos[i]);
-        new_pos[i] = ins_mch[i];
-        new_ins_mch[i] = pos[i];
-    }
-    pos = new_pos;
-    ins_mch = new_ins_mch;
-}
-

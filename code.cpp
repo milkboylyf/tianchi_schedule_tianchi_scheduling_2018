@@ -106,7 +106,7 @@ void count_constance( vector<int> &pre_deploy ) {
         score = 0.0;
         if (empty()) return 0.0;
         for (auto t : cpu ) {
-            score += 1+(ins_ids.size())*(exp( max(0.0,(double)t/cpu_spec[m_ids] - cst::b )) - 1) ;
+            score += 1+(ins_ids.size()+1)*(exp( max(0.0,(double)t/cpu_spec[m_ids] - cst::b )) - 1) ;
         }
         return score;
     }
@@ -255,7 +255,7 @@ void count_constance( vector<int> &pre_deploy ) {
     void Code::init() {
         int ct = machine_resources_num;
         int index[instance_deploy_num+2];
-        count_constance(instance_machines);
+        //count_constance(instance_machines);
         vector<int> mi;
         for (int i=1;i<=machine_resources_num;i++) if (!running_mch[i]) mi.push_back(i);
         cout << mi.size() <<endl;

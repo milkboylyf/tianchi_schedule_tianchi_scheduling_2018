@@ -128,7 +128,7 @@ void read_data(
     while(true) {
         job_input >> line ;
         if (line.size()<5||job_input.eof()) break;
-        cout << "#" << line << "#" <<endl;
+        //cout << "#" << line << "#" <<endl;
         vector<string> sp = split(line);
         splits_list.push_back(sp);
         Jobs a;
@@ -329,6 +329,20 @@ void read_output_file( string output_file_name, map<int,int> &result) {
     }
     while(in0.read_row(string_buffers[0], string_buffers[1]))  {
         result[global:: instance_index[stoi(string_buffers[0].substr(5))]] = stoi(string_buffers[1].substr(8));
+    }
+}
+
+
+void read_output_file_turn( string output_file_name, map<int,int> &result) {
+    io::CSVReader<3> in0(output_file_name);
+    std::string string_buffers[10];
+    int int_buffers[10];
+    result.clear();
+    for (int i=1;i<=global::instance_deploy_num;i++) if (global::instance_machines[i]!=-1) {
+        result[i] = global::instance_machines[i];
+    }
+    while(in0.read_row(string_buffers[0], string_buffers[1], string_buffers[2]))  {
+        result[global:: instance_index[stoi(string_buffers[1].substr(5))]] = stoi(string_buffers[2].substr(8));
     }
 }
 

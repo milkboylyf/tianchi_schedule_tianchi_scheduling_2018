@@ -17,5 +17,7 @@ void process_data();
 void read_output_file(
         string output_file_name,
         map<int,int> &result ); 
+        
+void read_output_file_turn( string output_file_name, map<int,int> &result);
 
 void compute_cpu_sup();

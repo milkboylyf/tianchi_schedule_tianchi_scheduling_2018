@@ -2,6 +2,8 @@
 #define MOVE_PARA
 
 #include "move.h"
+#include "match.h"
+#include "code.h"
 #include <algorithm>
 #include <string.h>
 
