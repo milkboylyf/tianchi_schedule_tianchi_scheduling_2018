@@ -445,6 +445,7 @@ void offline_scheduling(
             _last_time[v] = max(_last_time[v], p + job_res[v].time);
             //cerr << p << " " << job_res[v].time << endl;
             int next_p = first_empty_pos(p, v, mach);
+            if (_rm[mach].qv[1][next_p]>288) cout << _rm[mach].qv[1][next_p] << endl;
             if(next_p != -1) {
                 q.push(make_pair(-next_p, mach));
                 //cerr << next_p << endl;

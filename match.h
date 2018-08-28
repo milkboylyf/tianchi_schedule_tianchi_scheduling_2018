@@ -18,7 +18,7 @@
 #define MAX_EDGE_NUM 10000
 #endif
 
-#define MAX_N 8010
+#define MAX_N 9010
 #define MAX_E 4000400
 #define MAXINT 0x3f3f3f3f
 #define INF 1e9

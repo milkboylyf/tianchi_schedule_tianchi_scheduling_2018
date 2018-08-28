@@ -25,7 +25,7 @@ int main() {
             "../dataset/job_info.a.csv");
             //*/
        
-    string input_num = "e";     
+    string input_num = "c";     
     //*
     read_data(
             "../dataset/instance_deploy."+input_num+".csv",
@@ -41,23 +41,23 @@ int main() {
     const int online = 0;
     const int offline = 1;
     const int move_ins = 2;
-    int mode = 2;
+    int mode = 1;
     
     
     if (mode == offline)
     {
     	map<int, int > ip;
-    	read_output_file("../submit_final_b_4396.csv", ip);
+    	read_output_file("../submit_final_c_m5970.csv", ip);
     	vector<tuple<int, int, int> > job_pt;
-    	offline_scheduling(ip, job_pt, 132);
-    	write_offline_result("../submit_final_b_4396_offline.csv",job_pt);
+    	offline_scheduling(ip, job_pt, 0);
+    	write_offline_result("../submit_final_c_tmp_s.csv",job_pt);
         return 0;
     }
     else if (mode == move_ins) {
     	map<int, int > ip;
     	vector<int> ins_mch = instance_machines;
     	
-    	read_output_file("../submit_final_e_.csv", ip );
+    	read_output_file("../submit_final_c_m5970.csv", ip );
     	vector<vector<pair<int,int> > > results = test_move(ip, ins_mch);
     	write_output_turn(results, "../submit_final_tmp_s.csv");
     	return 0;

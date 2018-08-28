@@ -300,8 +300,8 @@ vector<int> get_matches( Code &c , Code &origin_c ) {
     
     //*/
     
-    for (int i =1;i<=8000;i++) {
-        for (int j=1;j<=8000;j++) 
+    for (int i =1;i<=machine_resources_num;i++) {
+        for (int j=1;j<=machine_resources_num;j++) 
         if ((i>small_num)==(j>small_num))
         {
             fedges[i][j] = exp(-min(0.0, fedges[i][j] - (c.m_ins[i].cpu[45] + origin_c.m_ins[j].cpu[45]))/10.0);
@@ -316,7 +316,7 @@ vector<int> get_matches( Code &c , Code &origin_c ) {
     }
     
     KM_Match km;
-    km.reset(8000,6000,fedges);
+    km.reset(machine_resources_num,small_num,fedges);
     
     //map<int, int> results;
     cout << "#################" <<endl;
@@ -378,12 +378,12 @@ vector<vector<pair<int,int> > > test_move(map<int,int> &pos, vector<int> &ins_mc
     }
     vector<int> trs = get_matches(c,origin_c);
     int trans[10000], reverse[10000];
-    /*
+    //*
     for (int i=1;i<=machine_resources_num;i++) trans[i] = i, reverse[i] = i;
     for (auto &a:O) {
         //if (a[0]>14000)
         //cout << a[1] << " " << a[0]-8000 << endl; 
-        int tmp_a = a[1], tmp_b = reverse[a[0]-8000];
+        int tmp_a = a[1], tmp_b = reverse[a[0]-machine_resources_num];
         if (tmp_a!=tmp_b) {
             swap(trans[tmp_a],trans[tmp_b]);
             reverse[trans[tmp_a]]=tmp_a;
@@ -391,12 +391,11 @@ vector<vector<pair<int,int> > > test_move(map<int,int> &pos, vector<int> &ins_mc
         }
     }
     cout << O.size() <<endl;
-    */
     
     
-    for (int i=1;i<=8000;i++) {
-        assert(((trs[i]>6000)==(i>6000)));
-        for (int j=1;j<=8000;j++) {
+    for (int i=1;i<=machine_resources_num;i++) {
+        assert(((trs[i]>small_num)==(i>small_num)));
+        for (int j=1;j<=machine_resources_num;j++) {
             assert(i==j||trs[i]!=trs[j]);
         }
     }
