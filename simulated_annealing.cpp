@@ -4,6 +4,15 @@
 
 #include "windows.h"
 
+#else
+
+#include <ctime>
+#include <chrono>
+
+void sleep(int t) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(t));
+}
+
 #endif
 
 #include <mutex>
@@ -34,6 +43,9 @@ void run_thread( ParallelMergeWorker *mw ) {
 #ifdef _WIN32
 
 	Sleep(100);
+
+#else
+    sleep(100);
 	
 #endif
 
