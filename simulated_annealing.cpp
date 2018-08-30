@@ -1,5 +1,11 @@
 #include "simulated_annealing.h"
+
+#ifdef _WIN32
+
 #include "windows.h"
+
+#endif
+
 #include <mutex>
 
 bool judge( double score, double new_score ,double temper) {
@@ -24,7 +30,13 @@ Code *cd;
 
 void run_thread( ParallelMergeWorker *mw ) {
 	int count = 0;
+	
+#ifdef _WIN32
+
 	Sleep(100);
+	
+#endif
+
 	while (true) {
 		//count++;
 		//cout << mw->worker_id << " " << count++ <<endl;
@@ -144,6 +156,20 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
     
     terminal = 0;
 	cd = &coder;
+	
+    while ( true ) {
+        char ch = getchar();
+        //cout << "character: " << ch <<endl;
+        if (ch=='a') {
+        	terminal = 1;
+		    for ( int j=0;j<workers_num;j++) {
+		        mwthreads[j].join();
+	        }
+			break;
+		}
+    }
+    
+    /*
 	for (int i=0;i<sleep_times;i++) {
 		
         
@@ -162,6 +188,7 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
         }
        // }
     }
+    */
     
     //a.make_integer_result(5600);
     

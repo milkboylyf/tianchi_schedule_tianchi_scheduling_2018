@@ -33,14 +33,14 @@ int main() {
     //***************all parameters*****************
     
     int mode = 0;                   //模式 
-    string input_num = "a";         //数据集 
+    string input_num = "e";         //数据集 
     
     //offline
-    int empty_mch_use = 0;         //离线使用的空服务器数量
+    int empty_mch_use = 50;         //离线使用的空服务器数量
     
     //online
     int thread_num = 1;         //线程数 
-    double max_cpu_rate = 1.91; //用来控制服务器数，通常区间在1.6-2.2之间 
+    double max_cpu_rate = 1.61; //用来控制服务器数，通常区间在1.6-2.2之间 
     int stop_time = 1000;       //运行时间，秒
     int not_used_large = 0;     //由于c和d的数据，需要为jobs空出一些大的服务器，大致在几十吧 
     
@@ -66,19 +66,19 @@ int main() {
     if (mode == offline)
     {
     	map<int, int > ip;
-    	read_output_file_turn("../submit_final_a_tmp1_s.csv", ip);
+    	read_output_file_turn("../submit_final_"+input_num+"_tmp1_s.csv", ip);
     	vector<tuple<int, int, int> > job_pt;
     	offline_scheduling(ip, job_pt, empty_mch_use);
-    	write_offline_result("../submit_final_a_tmp1_o.csv",job_pt);
+    	write_offline_result("../submit_final_"+input_num+"_tmp1_o.csv",job_pt);
         return 0;
     }
     else if (mode == move_ins) {
     	map<int, int > ip;
     	vector<int> ins_mch = instance_machines;
     	
-    	read_output_file("../submit_final_a_m4478_4482.csv", ip );
+    	read_output_file("../submit_final_e_.csv", ip );
     	vector<vector<pair<int,int> > > results = test_move(ip, ins_mch);
-    	write_output_turn(results, "../submit_final_a_tmp1_s.csv");
+    	write_output_turn(results, "../submit_final_"+input_num+"_tmp1_s.csv");
     	return 0;
     }
     else {
