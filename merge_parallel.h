@@ -8,6 +8,8 @@
 
 struct ParallelMergeWorker {
     
+	int worker_id;
+	
     vector<int> reserved_ins;
     int reserved_applys[100];
     int apply1, apply2;
@@ -21,7 +23,7 @@ struct ParallelMergeWorker {
     
     int search_times ;
     
-    ParallelMergeWorker(int _len) ;
+    ParallelMergeWorker(int _len, int _id) ;
     
     void dfs_m_divide( int x ) ;
     

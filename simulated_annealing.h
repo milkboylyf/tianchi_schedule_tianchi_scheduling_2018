@@ -24,7 +24,7 @@
 bool judge( double score, double new_score );
 
 
-void simulated_annealing (double end_time);
+bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, int not_used_large);
 
 
 

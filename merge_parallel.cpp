@@ -1,6 +1,6 @@
 #include "merge_parallel.h" 
 
-ParallelMergeWorker::ParallelMergeWorker(int _len): len(_len), m1(0), m2(0) {}
+ParallelMergeWorker::ParallelMergeWorker(int _len, int _id): len(_len), m1(0), m2(0), worker_id(_id) {}
 
 void ParallelMergeWorker::dfs_m_divide(int x) {
     //cout << x << " " << reserved_ins[x] << endl;
@@ -105,6 +105,7 @@ void ParallelMergeWorker::before_merge( Code &coder, Machine &machine_1 , Machin
             m2.add_instance(t,true);
     }
     constant_ins_num = cnt_ins.size();
+    //cout << constant_ins_num <<endl;
     for (auto &t : reserved_ins) if (!instance_constance[t]) {
         cnt_ins.push_back(t);
     }

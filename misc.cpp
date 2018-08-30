@@ -435,9 +435,13 @@ void check_output_file(string output_file_name) {
 void write_offline_result(string file_name , vector<tuple<int,int,int> > &result) {
     ofstream f;
     f.open (file_name, ios::trunc);
+    map<tuple<int,int,int>,int> ne;
     for(auto& p: result) {
-        f   << job_res[get<0>(p)].name << ",machine_" << get<1>(p)
-            << "," << get<2>(p) << "," << 1 << endl;
+        ne[p]++;
+    }
+    for(auto& p: ne) {
+        f   << job_res[get<0>(p.first)].name << ",machine_" << get<1>(p.first)
+            << "," << get<2>(p.first) << "," << p.second << endl;
     }
     f.close();
 }

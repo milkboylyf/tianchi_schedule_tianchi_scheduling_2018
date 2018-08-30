@@ -53,16 +53,31 @@ bool MachineWithPreDeploy::spec_eval( int ins, bool is_object , bool inner, bool
     
     int ins_app = instance_apps[ins];
     if (is_object) {
-        if ( disk_spec[m_ids] < disk + app_apply[ins_app]           
-            || p_lim[m_ids] < P + app_p[ins_app]
-            || m_lim[m_ids] < M + app_m[ins_app]                 //there's no positive value in app_m 
-            || pm_lim[m_ids] < PM + app_pm[ins_app] ) 
-            return false;
-        for (int i=0;i<time_len;i++) 
-            if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i] - 1e-8
-                || mem_spec[m_ids] < mem[i] + app_mem_line[ins_app][i] - 1e-8 ) {
-                    //cout << "CPU & MEM" <<endl;
-            return false;
+        if (inner) {
+            if ( disk_spec[m_ids] < disk + ob_disk - n_disk 
+                || p_lim[m_ids] < P + ob_P - n_P
+                || m_lim[m_ids] < M + ob_M - n_M  //there's no positive value in app_m 
+                || pm_lim[m_ids] < PM + ob_PM - n_PM ) 
+                return false;
+            for (int i=0;i<time_len;i++) 
+                if (  cpu_spec[m_ids] < cpu[i] + ob_cpu[i]*0.2 - n_cpu[i] - 1e-8 
+                    || mem_spec[m_ids] < mem[i] + ob_mem[i]*0.2 - n_mem[i] - 1e-8 ) {
+                        //cout << "CPU & MEM" <<endl;
+                return false;
+            }
+        }
+        else {
+            if ( disk_spec[m_ids] < disk + app_apply[ins_app]           
+                || p_lim[m_ids] < P + app_p[ins_app]
+                || m_lim[m_ids] < M + app_m[ins_app]                 //there's no positive value in app_m 
+                || pm_lim[m_ids] < PM + app_pm[ins_app] ) 
+                return false;
+            for (int i=0;i<time_len;i++) 
+                if (  cpu_spec[m_ids] < cpu[i] + app_cpu_line[ins_app][i] - 1e-8
+                    || mem_spec[m_ids] < mem[i] + app_mem_line[ins_app][i] - 1e-8 ) {
+                        //cout << "CPU & MEM" <<endl;
+                return false;
+            }
         }
     }
     else {
@@ -495,6 +510,41 @@ int MoveWorker::move_ins_directly() {
     return flag;
 }
 
+int MoveWorker::move_ins_directly_half(double part) {
+    int flag = 0;
+    int a_inter = 0, a_spec = 0, a_pass = 0;
+    for (int i=len;i>=1;i--) {
+        MachineWithPreDeploy &m = m_ins[i];
+        //cout << m.ins_todo.size() <<endl;
+        int ct = 0;
+        for (int t : m.ins_todo) { 
+            if (ct>m.ins_todo.size()*part) 
+                break;
+            ++ct;
+            if ( !m.n_ins_ids.count(t) && m.inter_eval(t,false,true) ) {
+                int ob = ob_pos[t];
+                if (!m_ins[ob].spec_eval(t,true)) {
+                    flag |= 1;
+                    a_inter ++;
+                }
+                else if (!m_ins[ob].inter_eval(t,true)) {
+                    flag |= 2;
+                    a_spec++;
+                }
+                else {
+                    m_ins[ob].add_instance(t);
+                    m_ins[i].del_instance(t);
+                    temp_results.push_back(make_pair(t,ob));
+                    flag |= 4;
+                    a_pass++;
+                }
+            }
+        }
+    }
+    cout << a_inter << " " << a_spec << " " << a_pass << endl;
+    return flag;
+}
+
 int MoveWorker::move_ins_soft_cpu( int max_times , double cpu_th, bool show) {
     
     int flag = 0;
@@ -538,6 +588,40 @@ int MoveWorker::move_ins_soft( int max_times , double mem_th, bool show) {
         //cout << m.ins_todo.size() <<endl;
         for (int t : m.ins_todo) { 
             if ( app_mem_line[instance_apps[t]][0]>mem_th && !m.n_ins_ids.count(t) && !m.spec_eval(t,false,true) ) {
+                int tmp =0, times;
+                for ( times= 0; times <=max_times; times ++ ) {
+                    int ob = (rand()%len)+1;
+                    if ( ob == i || ob == ob_pos[t] ) continue;
+                    if ( m_ins[ob].inter_eval(t,false) && m_ins[ob].spec_eval(t,false)) {
+                        m_ins[ob].add_instance(t);
+                        m_ins[i].del_instance(t);
+                        temp_results.push_back(make_pair(t,ob));
+                        tmp = 1;
+                        break;
+                    }
+                }
+                //cout << times << " " << i << endl;
+                if (tmp) a_pass ++;
+                else {
+                    if (show) cout << t << ":" << instance_apps[t] << endl;
+                    a_inter ++;
+                }
+            }
+        }
+    }
+    cout << a_inter << " " << a_spec << " " << a_pass << endl;
+    return a_inter>0;
+}
+
+int MoveWorker::move_ins_soft_half( int max_times , double mem_th, bool show) {
+    
+    int flag = 0;
+    int a_inter = 0, a_spec = 0, a_pass = 0;
+    for (int i=1;i<=len;i++) {
+        MachineWithPreDeploy &m = m_ins[i];
+        //cout << m.ins_todo.size() <<endl;
+        for (int t : m.ins_todo) { 
+            if ( app_mem_line[instance_apps[t]][0]>mem_th && !m.n_ins_ids.count(t) && !m.spec_eval(t,true,true) ) {
                 int tmp =0, times;
                 for ( times= 0; times <=max_times; times ++ ) {
                     int ob = (rand()%len)+1;

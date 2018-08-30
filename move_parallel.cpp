@@ -431,6 +431,7 @@ vector<vector<pair<int,int> > > test_move(map<int,int> &pos, vector<int> &ins_mc
     
     cout << mw.move_ins_with_conflicts() << endl;
     cout << mw.move_ins_soft_cpu(100000,40) <<endl;
+    cout << mw.move_ins_directly_half(0.1) <<endl;
     cout << mw.move_ins_directly() <<endl;
     //for (int t : mw.m_ins[test_ins].ins_todo) 
     //    if ( !mw.m_ins[test_ins].n_ins_ids.count(t) && !mw.m_ins[test_ins].inter_eval(t,false,true) ) cout << t << " " ;
@@ -440,6 +441,7 @@ vector<vector<pair<int,int> > > test_move(map<int,int> &pos, vector<int> &ins_mc
     cout << mw.move_ins_soft(100000,30) <<endl;
     cout << mw.move_ins_soft(1000,30) <<endl;
     cout << mw.move_ins_with_conflicts_soft() <<endl;
+    cout << mw.move_ins_soft_half(500) <<endl;
     cout << mw.move_ins_soft(500) <<endl;
     //cout << mw.move_ins_soft(500) <<endl;
     //cout << mw.move_ins_soft(500) <<endl;

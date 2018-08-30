@@ -268,10 +268,10 @@ void process_data() {
     
     global::sum_cpu = 0;
     for (int i=0;i<global::time_len;i++) global::sum_cpu+=global::sum_cpu_line[i];
-    for (int i=0;i<global::time_len;i++) cout << global::sum_cpu_line[i] << " " ;
-    cout << endl;
-    for (int i=0;i<global::time_len;i++) cout << global::sum_mem_line[i] << " " ;
-    cout << endl;
+    //for (int i=0;i<global::time_len;i++) cout << global::sum_cpu_line[i] << " " ;
+    //cout << endl;
+    //for (int i=0;i<global::time_len;i++) cout << global::sum_mem_line[i] << " " ;
+    //cout << endl;
     
     
     for (int i =1; i<= global:: app_resources_num ;i ++ ) 
@@ -316,6 +316,7 @@ void process_data() {
     for (Jobs &a : job_res ) {
         total_jobs_cpu += a.time*a.cpu*a.ins_size;
     }
+    cout << "total_jobs_cpu: " << total_jobs_cpu/98/15 <<endl; 
     //compute_cpu_sup();
 }
 

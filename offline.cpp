@@ -395,6 +395,9 @@ void offline_scheduling(
                 app_cpu_line[app][i], 
                 app_mem_line[app][i]);
         }
+        if (mach == 3055) {
+        //    cout << it.first << " " << _rm[mach].value[1][0] <<endl; 
+        }
     }
     for(int i = 1; i <= machine_resources_num; i++) {
         if(_machine_cnt[i] == 0) {
@@ -444,8 +447,14 @@ void offline_scheduling(
             */
             _last_time[v] = max(_last_time[v], p + job_res[v].time);
             //cerr << p << " " << job_res[v].time << endl;
+            if (mach==3055&&p==0) {
+            //    cout << "#" << p << " " << _rm[mach].value[1][0] << endl;
+            }
             int next_p = first_empty_pos(p, v, mach);
-            if (_rm[mach].qv[1][next_p]>288) cout << _rm[mach].qv[1][next_p] << endl;
+            //if (_rm[mach].qv[1][next_p]>288) cout << _rm[mach].qv[1][next_p] << endl;
+            if (mach==3055&&next_p==0) {
+            //    cout << next_p << " " << _rm[mach].value[1][0] << endl;
+            }
             if(next_p != -1) {
                 q.push(make_pair(-next_p, mach));
                 //cerr << next_p << endl;

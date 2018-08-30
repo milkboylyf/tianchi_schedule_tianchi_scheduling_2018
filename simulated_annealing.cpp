@@ -1,4 +1,6 @@
 #include "simulated_annealing.h"
+#include "windows.h"
+#include <mutex>
 
 bool judge( double score, double new_score ,double temper) {
     if (score > new_score) return true;
@@ -7,19 +9,83 @@ bool judge( double score, double new_score ,double temper) {
     return false;
 }
 
+
+int merge_a[1000], merge_b[1000];
+set<int> moving_machines;
+
+mutex coder_mutex;
+
+bool terminal;
+Code *cd;
+
+//void run_thread( ParallelMergeWorker *mw ) {
+//    mw->dfs_m_divide(0);
+//}
+
 void run_thread( ParallelMergeWorker *mw ) {
-    mw->dfs_m_divide(mw->constant_ins_num);
+	int count = 0;
+	Sleep(100);
+	while (true) {
+		//count++;
+		//cout << mw->worker_id << " " << count++ <<endl;
+		coder_mutex.lock(); 
+		//cout << mw->worker_id << "####" <<endl;
+		
+	    int m_a, m_b , times = 0;
+	    do {
+	        m_a = rand()%machine_resources_num+1;
+	        times ++;
+	    }
+	    while ( (moving_machines.count(m_a)||cd->m_ins[m_a].empty()) && times <20000) ;
+	    if (times >=20000) continue;
+	    do {
+	        m_b = rand()%machine_resources_num+1;
+	        times ++;
+	    }
+	    while ( (m_a==m_b||moving_machines.count(m_b)||cd->m_ins[m_b].empty()) && times < 200000 );
+	    if (times >=200000) continue;
+	    merge_a[mw->worker_id] = m_a;
+	    merge_b[mw->worker_id] = m_b;
+	    moving_machines.insert(m_a);
+	    moving_machines.insert(m_b);
+	    
+	    
+	   	mw->before_merge(*cd,cd->m_ins[m_a],cd->m_ins[m_b] );
+	    
+		coder_mutex.unlock();
+		//cout << mw->worker_id << "$$$$" <<endl;
+		
+		mw->dfs_m_divide(0);
+		
+		//cout << mw->worker_id << "%%%%" <<endl;
+		coder_mutex.lock();
+	    
+		//cout << mw->worker_id << "&&&&" <<endl;
+		mw->after_merge(*cd,cd->m_ins[m_a],cd->m_ins[m_b] );
+	    moving_machines.erase(m_a);
+	    moving_machines.erase(m_b);
+	    if (terminal) {
+			coder_mutex.unlock();
+			return ;
+		}
+	        
+	    count ++;
+	    //cout << mw->worker_id <<endl;
+	    if (!mw->worker_id&&count%10==0) cout << cd->ave_score() <<endl;
+	    
+		coder_mutex.unlock();
+		//cout << mw->worker_id << "****" <<endl;
+	}
 }
 
-void simulated_annealing (double end_time) {
+bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, int not_used_large) {
     
 	double starttime = (double)clock()/CLOCKS_PER_SEC  , endtime1 = 0.3, endtime2 = 0 ;
 	
 	Code coder(machine_resources_num);
-	int workers_num = 1;
+	int workers_num = thread_num;
 	vector<ParallelMergeWorker*> workers;
-	for ( int i=0;i<workers_num;i++) 
-        workers.push_back(new ParallelMergeWorker(machine_resources_num));
+	for ( int i=0;i<workers_num;i++) workers.push_back(new ParallelMergeWorker(machine_resources_num,i));
 	//ParallelMergeWorker mw(machine_resources_num);
 	
 	//MergeWorker a(machine_resources_num);
@@ -27,12 +93,14 @@ void simulated_annealing (double end_time) {
 	/*
 	map<int, int > ip;
 	
-	read_output_file("../submit_final_e_8330.csv", ip );
+	read_output_file("../submit_final_e_8800.csv", ip );
 	
 	coder.restore_pos(ip);
+	coder.show_status();
 	
 	//生成初始解，当前算法核心2333 
 	/*/
+	coder.set_threshod(cpu_threshod, not_used_large);
 	coder.init();                                     
 	coder.show_status();
 	
@@ -40,7 +108,7 @@ void simulated_annealing (double end_time) {
 	double score = coder.ave_score(), temper = 1000000000, min_score = score;
 	int counter = 0, failed_times= 0, change_times = 0;
 	//disk_spec[1] = 10000; 
-	while ((double)clock()/CLOCKS_PER_SEC   - starttime < 2 && coder.ave_score() > 5507.179) {             
+	while ((double)clock()/CLOCKS_PER_SEC   - starttime < 0 && coder.ave_score() > 5507.179) {             
         int tmp_i = rand()%instance_deploy_num+1;
         if (coder.move_ins(tmp_i)) {
                 double new_score = coder.ave_score();
@@ -66,53 +134,33 @@ void simulated_annealing (double end_time) {
 	}
 	//*/
 	
+	bool flag = 0;
 	
 	
-	
-	for (int i=0;i<4000;i++) {
-	    vector<int> merge_a, merge_b;
-	    set<int> moving_machines;
-	    for ( int j=0;j<workers_num;j++) {
-            int m_a, m_b , times = 0;
-            do {
-                m_a = rand()%machine_resources_num+1;
-                times ++;
-            }
-            while ( (moving_machines.count(m_a)||coder.m_ins[m_a].empty()) && times <20000) ;
-            if (times >=20000) return;
-            do {
-                m_b = rand()%machine_resources_num+1;
-                times ++;
-            }
-            while ( (m_a == m_b || moving_machines.count(m_b)||coder.m_ins[m_b].empty()) && times < 200000 );
-            merge_a.push_back(m_a);
-            merge_b.push_back(m_b);
-            moving_machines.insert(m_a);
-            moving_machines.insert(m_b);
-        }
-	    for ( int j=0;j<workers_num;j++) {
-	        workers[j]->before_merge(coder,coder.m_ins[merge_a[j]],coder.m_ins[merge_b[j]] );
-        }
-        vector<thread> mwthreads;
-	    for ( int j=0;j<workers_num;j++) {
-	        mwthreads.push_back(thread(run_thread,workers[j]));
-        }
-	    for ( int j=0;j<workers_num;j++) {
-	        mwthreads[j].join();
-        }
-	    for ( int j=0;j<workers_num;j++) {
-	        workers[j]->after_merge(coder,coder.m_ins[merge_a[j]],coder.m_ins[merge_b[j]] );
-        }
+    vector<thread> mwthreads;
+    for ( int j=0;j<workers_num;j++) {
+        mwthreads.push_back(thread(run_thread,workers[j]));
+    }
+    
+    terminal = 0;
+	cd = &coder;
+	for (int i=0;i<sleep_times;i++) {
+		
         
-	    if (i%10==0) {
-            coder.show_status();
-            
-#ifdef _WIN32
-            if (kbhit()) {
-                if (getch()=='a') break;
-            }
-#endif
+        Sleep(1000);
+	    //if (i%10==0) {
+            //coder.show_status();
+        if (kbhit()) {
+        	char ch = getchar();
+            if (ch=='a') {
+            	terminal = 1;
+			    for ( int j=0;j<workers_num;j++) {
+			        mwthreads[j].join();
+		        }
+				break;
+			}
         }
+       // }
     }
     
     //a.make_integer_result(5600);
@@ -129,4 +177,6 @@ void simulated_annealing (double end_time) {
 	for (auto d:disk_space) 
 	   cout << d.first << ":" << d.second <<endl;
     global:: final_output = coder.ins_pos;
+    
+    return flag;
 }

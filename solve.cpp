@@ -25,7 +25,29 @@ int main() {
             "../dataset/job_info.a.csv");
             //*/
        
-    string input_num = "c";     
+       
+    const int online = 0;
+    const int offline = 1;
+    const int move_ins = 2;
+    
+    //***************all parameters*****************
+    
+    int mode = 0;                   //模式 
+    string input_num = "a";         //数据集 
+    
+    //offline
+    int empty_mch_use = 0;         //离线使用的空服务器数量
+    
+    //online
+    int thread_num = 1;         //线程数 
+    double max_cpu_rate = 1.91; //用来控制服务器数，通常区间在1.6-2.2之间 
+    int stop_time = 1000;       //运行时间，秒
+    int not_used_large = 0;     //由于c和d的数据，需要为jobs空出一些大的服务器，大致在几十吧 
+    
+    //各种文件名在下面 
+    
+    //***************end parameters*****************
+        
     //*
     read_data(
             "../dataset/instance_deploy."+input_num+".csv",
@@ -38,33 +60,30 @@ int main() {
     //check_output_file("../../submit20180629215200.csv");
     //check_output_file("../../submit20180626111523.csv");
     
-    const int online = 0;
-    const int offline = 1;
-    const int move_ins = 2;
-    int mode = 1;
+    
     
     
     if (mode == offline)
     {
     	map<int, int > ip;
-    	read_output_file("../submit_final_c_m5970.csv", ip);
+    	read_output_file_turn("../submit_final_a_tmp1_s.csv", ip);
     	vector<tuple<int, int, int> > job_pt;
-    	offline_scheduling(ip, job_pt, 0);
-    	write_offline_result("../submit_final_c_tmp_s.csv",job_pt);
+    	offline_scheduling(ip, job_pt, empty_mch_use);
+    	write_offline_result("../submit_final_a_tmp1_o.csv",job_pt);
         return 0;
     }
     else if (mode == move_ins) {
     	map<int, int > ip;
     	vector<int> ins_mch = instance_machines;
     	
-    	read_output_file("../submit_final_c_m5970.csv", ip );
+    	read_output_file("../submit_final_a_m4478_4482.csv", ip );
     	vector<vector<pair<int,int> > > results = test_move(ip, ins_mch);
-    	write_output_turn(results, "../submit_final_tmp_s.csv");
+    	write_output_turn(results, "../submit_final_a_tmp1_s.csv");
     	return 0;
     }
     else {
     
-        simulated_annealing (10);
+        simulated_annealing (thread_num,max_cpu_rate,stop_time,not_used_large);
         /*
         DP dp(machine_resources_num);
         dp.init();

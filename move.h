@@ -106,7 +106,10 @@ struct MoveWorker {
     
     int move_ins_directly();
     
+    int move_ins_directly_half(double part);
+    
     int move_ins_soft(int max_times = 1000,double mem_th= 0.0,  bool show = false);
+    int move_ins_soft_half(int max_times = 1000,double mem_th= 0.0,  bool show = false);
     
     int move_ins_soft_cpu(int max_times = 1000,double mem_th= 0.0,  bool show = false);
     

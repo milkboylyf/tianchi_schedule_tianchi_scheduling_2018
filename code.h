@@ -61,6 +61,8 @@ struct Code {
     set<int> stop;
     vector<Machine> m_ins;
     int len;
+    double cpu_threshod;
+    int nt_large;
     
     map<int,int> disk_index;       //磁盘规格下标 
     vector<int> sim_disk_spec;          //磁盘规格
@@ -71,6 +73,8 @@ struct Code {
     int max_ins_pair;
     
     Code(int _len);
+    
+    void set_threshod( double threshod ,int not_used_large);
     
     stack<pair<int,int> > move_log;
     
