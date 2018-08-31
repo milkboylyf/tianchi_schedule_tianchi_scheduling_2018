@@ -5,9 +5,6 @@ import shutil
 output_file = "./experiments.txt"
 
 def run(data_num, cpu_rate, t_lim):
-    data_num = "c"
-    cpu_rate = 2.01
-
     print("building")
     shutil.rmtree("./build")
     shutil.rmtree("./bin")
@@ -40,9 +37,11 @@ def run(data_num, cpu_rate, t_lim):
         "./dataset/job_info." + data_num + ".csv",
         "./submit_final_output_" + data_num + ".csv"
         ])
-
-    with open("./result.txt") as f:
+    
+    with open("./result.txt", "r") as f:
         score = float(f.readline())
-        print(score)
+        with open(output_file, "a") as ff:
+            ff.write("data_num: {}, cpu_rate: {:.5f}, time_lim: {}, score: {:.5f}\n"
+                .format(data_num, cpu_rate, t_lim, score))
 
-run("a", 2.01, 1)
+run("a", 2.01, 60*5)

@@ -1,0 +1,1 @@
+data_num: a, cpu_rate: 2.01000, time_lim: 1, score: 7688.67533
