@@ -7,7 +7,7 @@
 #include "move.h"
 #include <iostream>
 
-int main() {
+int main(int argc, char* argv[]) {
     /*
     read_data(
             "../data_preliminary/scheduling_preliminary_instance_deploy_20180606.csv",
@@ -25,25 +25,24 @@ int main() {
             "../dataset/job_info.a.csv");
             //*/
        
-       
     const int online = 0;
     const int offline = 1;
     const int move_ins = 2;
     
     //***************all parameters*****************
     
-    int mode = 0;                   //模式 
-    string input_num = "e";         //数据集 
+    int mode = stoi(argv[2]);                   //模式 
+    string input_num = argv[1];         //数据集 
     
     //offline
-    int empty_mch_use = 50;         //离线使用的空服务器数量
+    int empty_mch_use = 500;         //离线使用的空服务器数量
     
     //online
     int thread_num = 5;         //线程数 
-    double max_cpu_rate = 1.61; //用来控制服务器数，通常区间在1.6-2.2之间 
+    double max_cpu_rate = stod(argv[3]); //用来控制服务器数，通常区间在1.6-2.2之间 
     int stop_time = 1000;       //运行时间，秒
     int not_used_large = 0;     //由于c和d的数据，需要为jobs空出一些大的服务器，大致在几十吧 
-    
+    cerr << mode << " " << input_num << " " << max_cpu_rate << endl;
     //各种文件名在下面 
     
     //***************end parameters*****************
@@ -68,7 +67,21 @@ int main() {
     	map<int, int > ip;
     	read_output_file_turn("../submit_final_"+input_num+"_tmp1_s.csv", ip);
     	vector<tuple<int, int, int> > job_pt;
-    	offline_scheduling(ip, job_pt, empty_mch_use);
+        int l = -1, r = 300;
+        assert(offline_scheduling(ip, job_pt, 300));
+        while(r - l > 1) {
+            int mid = (r + l) / 2;
+            bool ok = offline_scheduling(ip, job_pt, mid);
+            cerr << "mach num: " << mid << " " << ok << endl;
+            if(ok) {
+                r = mid;
+            }
+            else {
+                l = mid;
+            }
+        }
+    	offline_scheduling(ip, job_pt, r);
+        cerr << "empty machine use: " << r << endl;
     	write_offline_result("../submit_final_"+input_num+"_tmp1_o.csv",job_pt);
         return 0;
     }
@@ -76,7 +89,7 @@ int main() {
     	map<int, int > ip;
     	vector<int> ins_mch = instance_machines;
     	
-    	read_output_file("../submit_final_e_.csv", ip );
+    	read_output_file("../submit_final_" + input_num + "_.csv", ip );
     	vector<vector<pair<int,int> > > results = test_move(ip, ins_mch);
     	write_output_turn(results, "../submit_final_"+input_num+"_tmp1_s.csv");
     	return 0;

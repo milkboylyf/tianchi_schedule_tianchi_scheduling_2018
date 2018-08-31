@@ -97,6 +97,14 @@ struct RangeMax{
         qi[0] = vector<T>(range + 10, 0);
         qi[1] = vector<T>(range + 10, 0);
     }
+    void reset() {
+        value[0] = vector<T>(range + 10, 0);
+        value[1] = vector<T>(range + 10, 0);
+        qv[0] = vector<T>(range + 10, 0);
+        qv[1] = vector<T>(range + 10, 0);
+        qi[0] = vector<T>(range + 10, 0);
+        qi[1] = vector<T>(range + 10, 0);       
+    }
     void range_add(int a, int b, T x0, T x1) {
         for(int i = a; i < b; i++) {
             value[0][i] += x0;
@@ -353,8 +361,8 @@ bool check_job_pos_and_time(
     return usage_check && relation_check;
 }
 
-void offline_scheduling(
-    map<int, int> &ins_pos, 
+bool offline_scheduling(
+    const map<int, int> &ins_pos, 
     vector<tuple<int, int, int> > &job_pos_and_time,
     int num) {
 
@@ -378,8 +386,15 @@ void offline_scheduling(
     }
     exit(0);
     */
-
+    _job_pos_and_time.clear();
     memset(_is_empty, 0, sizeof _is_empty);
+    memset(_machine_cnt, 0, sizeof _machine_cnt);
+    memset(_last_time, 0, sizeof _last_time);
+    _empty_machines.clear();
+    _other_machines.clear();
+    for(int i = 1; i <= machine_resources_num; i++) {
+        _rm[i].reset();
+    }
     for(auto it: ins_pos) {
         int app = instance_apps[it.first];
         int mach = it.second;
@@ -423,7 +438,7 @@ void offline_scheduling(
         for(int k = 0; k < job_res[v].ins_size; k++) {
             if(q.empty()) {
                 cerr << "no next_p found" << endl;
-                exit(0);
+                return false;
             }
             int mach = q.top().second;
             int p = -q.top().first;
@@ -460,13 +475,14 @@ void offline_scheduling(
                 //cerr << next_p << endl;
             }
         }
-        cerr << (++cc) << " v: " << v << " " << _last_time[v] << endl;
+        //cerr << (++cc) << " v: " << v << " " << _last_time[v] << endl;
         if(cc >= 1000) {
             //break;
         }
     }
     job_pos_and_time = _job_pos_and_time;
     check_job_pos_and_time(job_pos_and_time, ins_pos);
+    return true;
 }
 
 

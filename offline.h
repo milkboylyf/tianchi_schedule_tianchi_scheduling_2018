@@ -9,8 +9,8 @@
 #include <cassert>
 #include <iostream>
 
-void offline_scheduling (
-        map<int, int> &ins_pos, 
+bool offline_scheduling (
+        const map<int, int> &ins_pos, 
         vector<tuple<int, int, int> > &job_pos_and_time,
         int num);
 
