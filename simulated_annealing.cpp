@@ -4,6 +4,35 @@
 
 #include "windows.h"
 
+#else
+
+#include <termios.h>
+#include <term.h>
+#include <curses.h>
+#include <unistd.h>
+
+int kbhit(void)  
+{  
+struct termios oldt, newt;  
+int ch;  
+int oldf;  
+tcgetattr(STDIN_FILENO, &oldt);  
+newt = oldt;  
+newt.c_lflag &= ~(ICANON | ECHO);  
+tcsetattr(STDIN_FILENO, TCSANOW, &newt);  
+oldf = fcntl(STDIN_FILENO, F_GETFL, 0);  
+fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);  
+ch = getchar();  
+tcsetattr(STDIN_FILENO, TCSANOW, &oldt);  
+fcntl(STDIN_FILENO, F_SETFL, oldf);  
+if(ch != EOF)  
+{  
+ungetc(ch, stdin);  
+return 1;  
+}  
+return 0;  
+}  
+
 #endif
 
 #include <mutex>
@@ -157,6 +186,7 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
     terminal = 0;
 	cd = &coder;
 	
+	/*
     while ( true ) {
         char ch = getchar();
         //cout << "character: " << ch <<endl;
@@ -169,7 +199,7 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
 		}
     }
     
-    /*
+    //*/
 	for (int i=0;i<sleep_times;i++) {
 		
         
@@ -188,7 +218,7 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
         }
        // }
     }
-    */
+    //*/
     
     //a.make_integer_result(5600);
     
