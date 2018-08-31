@@ -4,7 +4,7 @@ import shutil
 
 output_file = "./experiments.txt"
 
-def run(data_num, cpu_rate):
+def run(data_num, cpu_rate, t_lim):
     data_num = "c"
     cpu_rate = 2.01
 
@@ -16,14 +16,14 @@ def run(data_num, cpu_rate):
     call(["cmake", ".."], cwd="./build")
     call(["make"], cwd="./build")
     print("runing online")
-    call(["./solve", data_num, "0", str(cpu_rate)], cwd="./bin")
+    call(["./solve", data_num, "0", str(cpu_rate), str(t_lim)], cwd="./bin")
 
 
     print("runing move")
-    call(["./solve", data_num, "2", str(cpu_rate)], cwd="./bin")
+    call(["./solve", data_num, "2", str(cpu_rate), str(t_lim)], cwd="./bin")
 
     print("runing offline")
-    call(["./solve", data_num, "1", str(cpu_rate)], cwd="./bin")
+    call(["./solve", data_num, "1", str(cpu_rate), str(t_lim)], cwd="./bin")
 
     filenames = ["./submit_final_"+data_num+"_tmp1_s.csv", "./submit_final_"+data_num+"_tmp1_o.csv"]
     with open("./submit_final_output_" + data_num + ".csv", "w") as outfile:
@@ -45,6 +45,4 @@ def run(data_num, cpu_rate):
         score = float(f.readline())
         print(score)
 
-with open("./result.txt") as f:
-    score = float(f.readline())
-    print(score)
+run("a", 2.01, 1)
