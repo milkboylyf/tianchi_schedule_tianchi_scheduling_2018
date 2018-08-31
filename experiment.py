@@ -13,7 +13,9 @@ def run(data_num, cpu_rate, t_lim):
     call(["cmake", ".."], cwd="./build")
     call(["make"], cwd="./build")
     print("runing online")
-    call(["./solve", data_num, "0", str(cpu_rate), str(t_lim)], cwd="./bin")
+    status = call(["./solve", data_num, "0", str(cpu_rate), str(t_lim)], cwd="./bin")
+    if status != 0 :
+        return 
 
 
     print("runing move")
