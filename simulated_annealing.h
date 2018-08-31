@@ -26,6 +26,7 @@
 #include <curses.h>
 #include <unistd.h>
 #include <ctime>
+#include <fctl.h>
 #include <chrono>
 
 #endif
