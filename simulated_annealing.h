@@ -11,15 +11,26 @@
 #include "misc.h" 
 #include "bestfit.h"
 #include "read.h"
+#include <thread>
+#include <mutex>
 
 #ifdef _WIN32 
 
 #include <conio.h>
+#include <windows.h>
+
+#else
+
+#include <termios.h>
+#include <term.h>
+#include <curses.h>
+#include <unistd.h>
+#include <ctime>
+#include <chrono>
 
 #endif
 
 
-#include <thread>
 
 bool judge( double score, double new_score );
 
