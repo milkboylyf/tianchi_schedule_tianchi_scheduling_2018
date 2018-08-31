@@ -2,12 +2,31 @@
 
 #ifdef _WIN32
 
-#include "windows.h"
+#define sleep(a) Sleep(a)
 
 #else
 
-#include <ctime>
-#include <chrono>
+int kbhit(void)  
+{  
+struct termios oldt, newt;  
+int ch;  
+int oldf;  
+tcgetattr(STDIN_FILENO, &oldt);  
+newt = oldt;  
+newt.c_lflag &= ~(ICANON | ECHO);  
+tcsetattr(STDIN_FILENO, TCSANOW, &newt);  
+oldf = fcntl(STDIN_FILENO, F_GETFL, 0);  
+fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);  
+ch = getchar();  
+tcsetattr(STDIN_FILENO, TCSANOW, &oldt);  
+fcntl(STDIN_FILENO, F_SETFL, oldf);  
+if(ch != EOF)  
+{  
+ungetc(ch, stdin);  
+return 1;  
+}  
+return 0;  
+}  
 
 void sleep(int t) {
     std::this_thread::sleep_for(std::chrono::milliseconds(t));
@@ -15,7 +34,6 @@ void sleep(int t) {
 
 #endif
 
-#include <mutex>
 
 bool judge( double score, double new_score ,double temper) {
     if (score > new_score) return true;
@@ -39,16 +57,7 @@ Code *cd;
 
 void run_thread( ParallelMergeWorker *mw ) {
 	int count = 0;
-	
-#ifdef _WIN32
-
-	Sleep(100);
-
-#else
     sleep(100);
-	
-#endif
-
 	while (true) {
 		//count++;
 		//cout << mw->worker_id << " " << count++ <<endl;
@@ -169,6 +178,7 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
     terminal = 0;
 	cd = &coder;
 	
+	/*
     while ( true ) {
         char ch = getchar();
         //cout << "character: " << ch <<endl;
@@ -181,11 +191,11 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
 		}
     }
     
-    /*
+    //*/
 	for (int i=0;i<sleep_times;i++) {
 		
         
-        Sleep(1000);
+        sleep(1000);
 	    //if (i%10==0) {
             //coder.show_status();
         if (kbhit()) {
@@ -200,7 +210,7 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
         }
        // }
     }
-    */
+    //*/
     
     //a.make_integer_result(5600);
     
