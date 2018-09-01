@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     //online
     int thread_num = 5;         //线程数 
     double max_cpu_rate = 2.18; //用来控制服务器数，通常区间在1.6-2.2之间 
-    int stop_time = 1000;       //运行时间，秒
+    int stop_time = 10;       //运行时间，秒
     int not_used_large = 0;     //由于c和d的数据，需要为jobs空出一些大的服务器，大致在几十吧 
     cerr << mode << " " << input_num << " " << max_cpu_rate << endl;
     
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
         mode = stoi(argv[2]);
         input_num = argv[1];
         max_cpu_rate = stod(argv[3]);
-        stoi(argv[4]);
+        stop_time = stoi(argv[4]);
     }
     
     
