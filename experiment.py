@@ -1,6 +1,7 @@
 from subprocess import call
 import os
 import shutil
+from random import uniform
 
 output_file = "./experiments.txt"
 
@@ -15,14 +16,18 @@ def run(data_num, cpu_rate, t_lim):
     print("runing online")
     status = call(["./solve", data_num, "0", str(cpu_rate), str(t_lim)], cwd="./bin")
     if status != 0 :
-        return 
+        return 1e9
 
 
     print("runing move")
-    call(["./solve", data_num, "2", str(cpu_rate), str(t_lim)], cwd="./bin")
+    status = call(["./solve", data_num, "2", str(cpu_rate), str(t_lim)], cwd="./bin")
+    if status != 0 :
+        return 1e9
 
     print("runing offline")
-    call(["./solve", data_num, "1", str(cpu_rate), str(t_lim)], cwd="./bin")
+    status = call(["./solve", data_num, "1", str(cpu_rate), str(t_lim)], cwd="./bin")
+    if status != 0 :
+        return 1e9
 
     filenames = ["./submit_final_"+data_num+"_tmp1_s.csv", "./submit_final_"+data_num+"_tmp1_o.csv"]
     with open("./submit_final_output_" + data_num + ".csv", "w") as outfile:
@@ -42,8 +47,14 @@ def run(data_num, cpu_rate, t_lim):
     
     with open("./result.txt", "r") as f:
         score = float(f.readline())
-        with open(output_file, "a") as ff:
-            ff.write("data_num: {}, cpu_rate: {:.5f}, time_lim: {}, score: {:.5f}\n"
-                .format(data_num, cpu_rate, t_lim, score))
+        return score
+        
 
-run("a", 2.01, 60*5)
+while(True):
+    data_num = "a"
+    cpu_rate = uniform(1.6, 2.2)
+    t_lim = 60*20
+    score = run(data_num, cpu_rate, t_lim)
+    with open(output_file, "a") as ff:
+        ff.write("data_num: {}, cpu_rate: {:.5f}, time_lim: {}, score: {:.5f}\n"
+            .format(data_num, cpu_rate, t_lim, score))
