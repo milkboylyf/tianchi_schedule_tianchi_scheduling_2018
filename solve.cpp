@@ -32,14 +32,14 @@ int main(int argc, char* argv[]) {
     //***************all parameters*****************
     
     int mode = 0;                   //模式 
-    string input_num = "e";         //数据集 
+    string input_num = "a";         //数据集 
     
     //offline
     int empty_mch_use = 500;         //离线使用的空服务器数量
     
     //online
     int thread_num = 5;         //线程数 
-    double max_cpu_rate = 2.01; //用来控制服务器数，通常区间在1.6-2.2之间 
+    double max_cpu_rate = 2.18; //用来控制服务器数，通常区间在1.6-2.2之间 
     int stop_time = 1000;       //运行时间，秒
     int not_used_large = 0;     //由于c和d的数据，需要为jobs空出一些大的服务器，大致在几十吧 
     cerr << mode << " " << input_num << " " << max_cpu_rate << endl;

@@ -104,7 +104,7 @@ void run_thread( ParallelMergeWorker *mw ) {
 	        
 	    count ++;
 	    //cout << mw->worker_id <<endl;
-	    if (!mw->worker_id&&count%10==0) cout << cd->ave_score() <<endl;
+	    //if (!mw->worker_id&&count%10==0) cout << cd->ave_score() <<endl;
 	    
 		coder_mutex.unlock();
 		//cout << mw->worker_id << "****" <<endl;
