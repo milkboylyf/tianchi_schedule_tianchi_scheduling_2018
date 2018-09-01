@@ -104,7 +104,7 @@ void run_thread( ParallelMergeWorker *mw ) {
 	        
 	    count ++;
 	    //cout << mw->worker_id <<endl;
-	    if (!mw->worker_id&&count%10==0) cout << cd->ave_score() <<endl;
+	    //if (!mw->worker_id&&count%10==0) cout << cd->ave_score() <<endl;
 	    
 		coder_mutex.unlock();
 		//cout << mw->worker_id << "****" <<endl;
@@ -201,14 +201,15 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
         if (kbhit()) {
         	char ch = getchar();
             if (ch=='a') {
-            	terminal = 1;
-			    for ( int j=0;j<workers_num;j++) {
-			        mwthreads[j].join();
-		        }
 				break;
 			}
         }
        // }
+    }
+    
+	terminal = 1;
+    for ( int j=0;j<workers_num;j++) {
+        mwthreads[j].join();
     }
     //*/
     
