@@ -201,14 +201,15 @@ bool simulated_annealing (int thread_num, double cpu_threshod, int sleep_times, 
         if (kbhit()) {
         	char ch = getchar();
             if (ch=='a') {
-            	terminal = 1;
-			    for ( int j=0;j<workers_num;j++) {
-			        mwthreads[j].join();
-		        }
 				break;
 			}
         }
        // }
+    }
+    
+	terminal = 1;
+    for ( int j=0;j<workers_num;j++) {
+        mwthreads[j].join();
     }
     //*/
     

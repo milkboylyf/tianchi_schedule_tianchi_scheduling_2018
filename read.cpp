@@ -57,7 +57,8 @@ void read_data(
         
     }
     //cerr << global:: instance_ids[0] << " " << global:: instance_apps[0] << " " << global:: instance_machines[2] << endl;
-    cerr << "input instance_deploy_num = " << (global:: instance_deploy_num = global:: instance_ids.size() -1) << endl;
+    //cerr << "input instance_deploy_num = " << (
+    global:: instance_deploy_num = global:: instance_ids.size() -1;//) << endl;
 
     io::CSVReader<7> in1(app_resources_file);
     while(in1.read_row(
@@ -79,7 +80,9 @@ void read_data(
          << global:: app_m[3] << " " 
          << global:: app_pm[3] << endl;
     */
-    cerr << "input app_resource_num = " << (global:: app_resources_num = global:: app_ids.size() -1) << endl;
+    //cerr << "input app_resource_num = " << (
+    global:: app_resources_num = global:: app_ids.size() -1;
+    //) << endl;
 
     io::CSVReader<7> in2(machine_resources_file);
     while(in2.read_row(
@@ -102,7 +105,9 @@ void read_data(
          << global:: m_lim[3] << " " 
          << global:: pm_lim[3] << endl;
     */
-    cerr << "input machine_resources_num = " << (global:: machine_resources_num = global:: machine_ids.size() -1) << endl;
+    //cerr << "input machine_resources_num = " << (
+    global:: machine_resources_num = global:: machine_ids.size() -1;
+    //) << endl;
 
     vector<int> app_inter1, app_inter2, app_inter_max;
     io::CSVReader<3> in3(app_interference_file);
@@ -120,7 +125,9 @@ void read_data(
          << global:: app_inter2[3] << " " 
          << global:: app_inter_max[3] << endl;
     */
-    cerr << "input app_interference_num = " << (global:: app_interference_num = global:: app_inter_max.size()) << endl;
+    //cerr << "input app_interference_num = " << (
+    global:: app_interference_num = global:: app_inter_max.size();
+    //) << endl;
 
     ifstream job_input(job_resources_file);
     string line ;
@@ -198,7 +205,9 @@ void read_data(
          << global:: app_inter2[3] << " " 
          << global:: app_inter_max[3] << endl;
     */
-    cerr << "input app_interference_num = " << (global:: app_interference_num = global:: app_inter_max.size()) << endl;
+    //cerr << "input app_interference_num = " << (
+    global:: app_interference_num = global:: app_inter_max.size();
+    //) << endl;
 }
 
 void process_data() {
@@ -316,7 +325,7 @@ void process_data() {
     for (Jobs &a : job_res ) {
         total_jobs_cpu += a.time*a.cpu*a.ins_size;
     }
-    cout << "total_jobs_cpu: " << total_jobs_cpu/98/15 <<endl; 
+    //cout << "total_jobs_cpu: " << total_jobs_cpu/98/15 <<endl; 
     //compute_cpu_sup();
 }
 

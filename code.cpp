@@ -211,9 +211,9 @@
         
         //*
         for (int i=0;i<sim_disk_spec.size();i++) {
-            cout << ins_remain[i] << ":" << sim_disk_spec[i] << " " ;
+            //cout << ins_remain[i] << ":" << sim_disk_spec[i] << " " ;
         }
-        cout << endl;
+        //cout << endl;
         //*/
         
         //srand(37124); 
@@ -274,7 +274,7 @@
                         || (m_ins[tmp_m].empty()==0 && (m_ins[tmp_m].cpu[0]+app_max_cpu[instance_apps[index[i]]])*cpu_threshod > cpu_spec[tmp_m] ) //level1_mem = 5310,1.973极限低分 level1_mem = 5400,2.01易交换  
                         //|| (((double)cpu_spec[tmp_m]/2- m_ins[tmp_m].cpu[0])/(disk_spec[tmp_m] - m_ins[tmp_m].disk)*5< (double)app_cpu_line[instance_apps[index[i]]][0] /app_apply[instance_apps[index[i]]])
                         || !m_ins[tmp_m].add_instance(index[i]) );
-                if (i%1000==0)
+                if (i%100000==0)
                     std::cout<< i<<" " <<tmp_m<<std::endl;
                 running.insert(tmp_m);
                 ins_pos[index[i]] = tmp_m;
@@ -290,8 +290,8 @@
         }
         //cout << "score:" << u_score << endl; 
         
-        if (move_last_instance()) cout << " exchange complete. "<< endl;
-        cout << "End initialization." <<endl;
+        //if (move_last_instance()) cout << " exchange complete. "<< endl;
+        //cout << "End initialization." <<endl;
     }
     
     //移动一个实例至另一个machine，如果不能移动，则寻找二次交换 
