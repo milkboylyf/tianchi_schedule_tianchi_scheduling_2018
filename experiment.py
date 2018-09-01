@@ -16,17 +16,21 @@ def run(data_num, cpu_rate, t_lim):
     print("runing online")
     status = call(["./solve", data_num, "0", str(cpu_rate), str(t_lim)], cwd="./bin")
     if status != 0 :
+        print("online fault")
+        print(status)
         return 1e9
 
 
     print("runing move")
     status = call(["./solve", data_num, "2", str(cpu_rate), str(t_lim)], cwd="./bin")
     if status != 0 :
+        print("move fault")
         return 1e9
 
     print("runing offline")
     status = call(["./solve", data_num, "1", str(cpu_rate), str(t_lim)], cwd="./bin")
     if status != 0 :
+        print("offline fault")
         return 1e9
 
     filenames = ["./submit_final_"+data_num+"_tmp1_s.csv", "./submit_final_"+data_num+"_tmp1_o.csv"]
@@ -50,9 +54,21 @@ def run(data_num, cpu_rate, t_lim):
         return score
         
 
+'''
+data_num = "a"
+cpu_rate = 2.01
+t_lim = 10
+score = run(data_num, cpu_rate, t_lim)
+with open(output_file, "a") as ff:
+    ff.write("data_num: {}, cpu_rate: {:.5f}, time_lim: {}, score: {:.5f}\n"
+        .format(data_num, cpu_rate, t_lim, score))
+
+exit(0)
+'''
+
 while(True):
     data_num = "a"
-    cpu_rate = uniform(1.6, 2.2)
+    cpu_rate = uniform(1.6, 2.2)#2.01
     t_lim = 60*20
     score = run(data_num, cpu_rate, t_lim)
     with open(output_file, "a") as ff:
